@@ -1,0 +1,7 @@
+fileignoreconfig:
+  - filename: poetry.lock
+    ignore_detectors: [filecontent]
+  - filename: tests/test_filter.py
+    ignore_detectors: [filecontent]
+  - filename: plugins/filter/custom_filter.py
+    ignore_detectors: [filecontent]
