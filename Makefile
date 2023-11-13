@@ -33,6 +33,9 @@ publish: build
 	poetry run ansible-galaxy collection publish --api-key ${GALAXY_API_KEY} \
 		"${COLLECTION_NAMESPACE}-${COLLECTION_NAME}-${COLLECTION_VERSION}.tar.gz"
 
+build:
+	@poetry run ansible-galaxy collection build --force
+
 dependency create prepare converge idempotence side-effect verify destroy login reset listt:
 	MOLECULE_DOCKER_IMAGE=${MOLECULE_DOCKER_IMAGE} poetry run molecule $@ -s ${MOLECULE_SCENARIO}
 
