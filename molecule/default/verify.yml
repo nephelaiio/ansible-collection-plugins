@@ -1,0 +1,15 @@
+---
+- name: Verify
+  hosts: localhost
+  connection: local
+  gather_facts: false
+  tasks:
+    - name: Test
+      ansible.builtin.fail:
+      vars:
+        prefixes: ['a', 'b']
+        suffix: 'suffix'
+        expected: 'a:suffix,b:suffix'
+        filter: 'nephelaiio.plugins.map_format'
+        result: "{{ prefixes | map(filter, '%s:' + suffix) | join(',') }}"
+      when: result != expected
