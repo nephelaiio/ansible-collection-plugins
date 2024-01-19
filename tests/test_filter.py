@@ -131,6 +131,7 @@ def test_to_dict():
     assert to_dict("a", {"a": "first", "b": "second"}) == {"a": "first", "b": "second"}
     assert to_dict("a", {"a": "first", "b": "%s"}) == {"a": "first", "b": "a"}
     assert to_dict("a", {"%s_1": "first", "%s_2": "%s"}) == {"a_1": "first", "a_2": "a"}
+    assert to_dict("a", {"%s_1": "first", "%s_2": "%s"}) == {"a_1": "first", "a_2": "a"}
 
 
 def test_map_format():
@@ -161,6 +162,14 @@ def test_key_item():
     d = {"a": "first", "b": "second"}
     assert key_item(d, "a") == ["first", {"b": "second"}]
     assert key_item(d, "b") == ["second", {"a": "first"}]
+    e = {"b": "second"}
+    f = {"a": e}
+    assert key_item(f, ["a", "b"], False) == ["second", f]
+    assert key_item(f, ["a"], False) == [e, f]
+    with pytest.raises(KeyError):
+        key_item(d, ["na"], False)
+    with pytest.raises(ValueError):
+        key_item(d, ["na"])
 
 
 def test_dict_to_list():
@@ -179,6 +188,18 @@ def test_list_to_dict():
         "a": {"content": "first", "key": "a"},
         "b": {"content": "second", "key": "b"},
     }
+    e = [
+        {"a": {"b": "first"}},
+        {"a": {"b": "second"}},
+    ]
+    assert list_to_dict(e, ["a", "b"], False) == {
+        "first": {"a": {"b": "first"}},
+        "second": {"a": {"b": "second"}}
+    }
+    with pytest.raises(KeyError):
+        list_to_dict(e, ["a", "c"], False)
+    with pytest.raises(ValueError):
+        list_to_dict(e, ["a", "c"])
 
 
 def test_to_kv():
