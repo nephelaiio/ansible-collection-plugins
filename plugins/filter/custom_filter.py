@@ -379,22 +379,49 @@ def merge_item(item, key_attr):
 
 def key_item(item, key_attr, remove_key=True):
     """
-    Processes an item (dictionary) by separating out a specified key-value pair,
-    and optionally removing that key from the original item.
+    Extracts a value from the given item using a specified key or nested keys, and returns
+    this value along with a modified copy of the original item.
 
-    Args:
-        item (dict): The dictionary to process.
-        key_attr: The key to separate and optionally remove from `item`.
-        remove_key (bool, optional): If True, removes `key_attr` from `item`. Default is True.
+    Parameters:
+    - item (dict or similar): The item from which to extract the value. It should be a
+      dictionary or a dictionary-like object.
+    - key_attr (int, float, str, bool, list, tuple): The key or nested keys used to extract
+      the value from the item. If it's a list or tuple, it is treated as nested keys.
+    - remove_key (bool, optional): If True, the key is removed from the copied item.
+      Default is True. Note: This option is not applicable for nested keys.
 
     Returns:
-        list: A list containing the value of `key_attr` and the modified item.
+    - list: A list containing two elements:
+        1. The value extracted from the item using the key(s).
+        2. A deep copy of the item, potentially with the key removed.
+
+    Raises:
+    - ValueError: If 'remove_key' is True for nested attributes or if 'key_attr' is
+      neither a scalar nor a list/tuple.
+
+    Example:
+    >>> item = {'a': {'b': 2}}
+    >>> key_item(item, ['a', 'b'], False)
+    [2, {'a': {'b': 2}}]
+
+    >>> key_item(item, 'a')
+    [{'b': 2}, {}]
+
+    Note:
+    - The function assumes that the nested keys correctly point to a value in the item.
     """
 
     new_item = copy.deepcopy(item)
-    if remove_key:
-        del new_item[key_attr]
-    return [item[key_attr], new_item]
+    if isinstance(key_attr, (list, tuple)):
+        if remove_key:
+            raise ValueError("remove_key must be False for nested attributes")
+        _nested_attr = functools.reduce(lambda x, k: x[k], key_attr, item)
+        return [_nested_attr, new_item]
+    if isinstance(key_attr, (int, float, str, bool)):
+        if remove_key:
+            del new_item[key_attr]
+        return [item[key_attr], new_item]
+    raise ValueError("key_attr must be scalar or list")
 
 
 def dict_to_list(d, key_attr):
@@ -641,9 +668,6 @@ def is_any_true(xs):
 
     Returns:
         bool: True if any element in the iterable is true, False otherwise.
-
-    Note:
-        This function uses a lambda function in conjunction with functools.reduce for evaluation.
     """
 
     return functools.reduce(lambda x, y: x or y, map(lambda x: bool(x), xs), False)  # pylint: disable=unnecessary-lambda
