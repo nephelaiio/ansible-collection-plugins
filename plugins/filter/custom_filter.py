@@ -52,7 +52,6 @@ import netaddr
 import yaml
 
 from markupsafe import soft_str
-from functools import reduce
 
 if sys.version_info[0] < 3:
     from collections import Sequence, defaultdict  # pylint: disable=deprecated-class
@@ -416,14 +415,13 @@ def key_item(item, key_attr, remove_key=True):
     if isinstance(key_attr, (list, tuple)):
         if remove_key:
             raise ValueError("remove_key must be False for nested attributes")
-        _nested_attr = reduce(lambda x, k: x[k], key_attr, item)
+        _nested_attr = functools.reduce(lambda x, k: x[k], key_attr, item)
         return [_nested_attr, new_item]
-    elif isinstance(key_attr, (int, float, str, bool)):
+    if isinstance(key_attr, (int, float, str, bool)):
         if remove_key:
             del new_item[key_attr]
         return [item[key_attr], new_item]
-    else:
-        raise ValueError("key_attr must be scalar or list")
+    raise ValueError("key_attr must be scalar or list")
 
 
 def dict_to_list(d, key_attr):
@@ -670,9 +668,6 @@ def is_any_true(xs):
 
     Returns:
         bool: True if any element in the iterable is true, False otherwise.
-
-    Note:
-        This function uses a lambda function in conjunction with functools.reduce for evaluation.
     """
 
     return functools.reduce(lambda x, y: x or y, map(lambda x: bool(x), xs), False)  # pylint: disable=unnecessary-lambda
