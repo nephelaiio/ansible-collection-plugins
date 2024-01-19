@@ -1,5 +1,5 @@
 ---
-name: molecule
+name: pytest
 
 on:
   pull_request:
@@ -10,7 +10,7 @@ on:
 
 jobs:
   molecule:
-    name: molecule
+    name: pytest
     runs-on: ubuntu-latest
     steps:
       - name: Check out the codebase
