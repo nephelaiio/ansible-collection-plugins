@@ -1,7 +1,7 @@
 # Ansible Collection - nephelaiio.plugins
 
 [![Build Status](https://github.com/nephelaiio/ansible-collection-plugins/actions/workflows/molecule.yml/badge.svg)](https://github.com/nephelaiio/ansible-collection-plugins/actions/wofklows/molecule.yml)
-[![Ansible Galaxy](http://img.shields.io/badge/ansible--galaxy-nephelaiio.plugins.vim-blue.svg)](https://galaxy.ansible.com/ui/repo/published/nephelaiio/plugins/)
+[![Ansible Galaxy](http://img.shields.io/badge/ansible--galaxy-nephelaiio.plugins-blue.svg)](https://galaxy.ansible.com/ui/repo/published/nephelaiio/plugins/)
 
 An [ansible collection](https://galaxy.ansible.com/ui/repo/published/nephelaiio/plugins/) for utility filters and tests
 
