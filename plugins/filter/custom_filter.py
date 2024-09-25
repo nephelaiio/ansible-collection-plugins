@@ -288,6 +288,7 @@ def alias_keys(d, alias=None):
         new_dict[v] = new_dict[k]
     return new_dict
 
+
 def map_attributes(d, atts):
     """
     Extracts values from the input dictionary (d) for the keys listed in atts.
@@ -305,6 +306,7 @@ def map_attributes(d, atts):
         if k in d:
             new_array = new_array + [d[k]]
     return new_array
+
 
 def select_attributes(d, atts):
     """
@@ -325,6 +327,7 @@ def select_attributes(d, atts):
             new_dict[k] = d[k]
     return new_dict
 
+
 def drop_attributes(d, x):
     """
     Returns a new dictionary with specified keys removed from the input dictionary (d).
@@ -342,6 +345,7 @@ def drop_attributes(d, x):
         if y in d:
             del new_dict[y]
     return new_dict
+
 
 def to_dict(x, key=None):
     """
@@ -366,6 +370,7 @@ def to_dict(x, key=None):
             result = {key: x}
     return result
 
+
 def merge_item(item, key_attr):
     """
     Merges a tuple of two items (a key-value pair) into a single dictionary,
@@ -376,6 +381,7 @@ def merge_item(item, key_attr):
     """
 
     return dict(merge_dicts(item[1], to_dict(item[0], key_attr)))
+
 
 def key_item(item, key_attr, remove_key=True):
     """
@@ -453,6 +459,7 @@ def list_to_dict(l, key_attr, remove_key=True):
     """
 
     return dict([key_item(x, key_attr, remove_key) for x in l])
+
 
 def to_kv(d, sep=".", prefix=""):
     """

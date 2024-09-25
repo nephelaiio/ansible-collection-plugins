@@ -1,13 +1,13 @@
 # Ansible Collection - nephelaiio.plugins
 
-[![Build Status](https://github.com/nephelaiio/ansible-collection-plugins/actions/workflows/molecule.yml/badge.svg)](https://github.com/nephelaiio/ansible-collection-plugins/actions/wofklows/molecule.yml)
+[![Build Status](https://github.com/nephelaiio/ansible-collection-plugins/actions/workflows/pytest.yml/badge.svg)](https://github.com/nephelaiio/ansible-collection-plugins/actions/wofklows/molecule.yml)
 [![Ansible Galaxy](http://img.shields.io/badge/ansible--galaxy-nephelaiio.plugins-blue.svg)](https://galaxy.ansible.com/ui/repo/published/nephelaiio/plugins/)
 
 An [ansible collection](https://galaxy.ansible.com/ui/repo/published/nephelaiio/plugins/) for utility filters and tests
 
 ## Collection plugins
 
-Filters:
+### Filters:
 
 - is_hash(d): Checks if the given object has a callable 'get' attribute.
 - merge_dicts(x, y): Merges two dictionaries, with values from the second dictionary overwriting those from the first.
@@ -43,10 +43,9 @@ Filters:
 - is_all_true(xs): Returns True if all elements in the provided iterable are truthy.
 - search_regex(r, s): Checks if a string matches a given regex pattern.
 
-Test:
+### Tests:
 - test_network(record=None, net="0.0.0.0/0", prop="ansible_host"): Tests if an IP address in a given record falls within a specified network range.
 - test_property(record=None, regex=".*", prop=""): Tests if the value of a specified property in a given record matches a regular expression.
-
 
 ## Testing
 
