@@ -20,8 +20,7 @@ test: pytest verify
 install:
 	@type poetry >/dev/null || pip3 install poetry
 	@type yq || sudo apt-get install -y yq
-	@poetry install
-	@echo
+	@poetry install --no-root
 
 format: install
 	poetry run black .

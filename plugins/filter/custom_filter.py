@@ -44,20 +44,21 @@ where data structures need to be dynamically created, modified, or converted bet
 # pylint: enable=line-too-long
 
 import copy
-import itertools
-import sys
 import functools
+import itertools
 import re
+import sys
+
 import netaddr
 import yaml
-
 from markupsafe import soft_str
 
 if sys.version_info[0] < 3:
-    from collections import Sequence, defaultdict  # pylint: disable=deprecated-class
-else:
-    from collections.abc import Sequence
+    from collections import Sequence  # pylint: disable=deprecated-class
     from collections import defaultdict
+else:
+    from collections import defaultdict
+    from collections.abc import Sequence
 
 
 def is_hash(d):
@@ -677,7 +678,11 @@ def is_any_true(xs):
         bool: True if any element in the iterable is true, False otherwise.
     """
 
-    return functools.reduce(lambda x, y: x or y, map(lambda x: bool(x), xs), False)  # pylint: disable=unnecessary-lambda
+    return functools.reduce(
+        lambda x, y: x or y,
+        map(lambda x: bool(x), xs),  # pylint: disable=unnecessary-lambda
+        False,
+    )
 
 
 def is_all_true(xs):
@@ -694,7 +699,11 @@ def is_all_true(xs):
         This function uses a lambda function in conjunction with functools.reduce for evaluation.
     """
 
-    return functools.reduce(lambda x, y: x and y, map(lambda x: bool(x), xs), True)  # pylint: disable=unnecessary-lambda
+    return functools.reduce(
+        lambda x, y: x and y,
+        map(lambda x: bool(x), xs),  # pylint: disable=unnecessary-lambda
+        True,
+    )
 
 
 def search_regex(r, s):
@@ -712,7 +721,7 @@ def search_regex(r, s):
     return bool(re.match(r, s))
 
 
-class FilterModule():
+class FilterModule:
     """
     A class encapsulating a collection of jinja2 filters.
 

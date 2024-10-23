@@ -69,7 +69,7 @@ def test_property(record=None, regex=".*", prop=""):
     return None
 
 
-class TestModule():
+class TestModule:
     """
     A class encapsulating test functions related to network and property validations.
 
