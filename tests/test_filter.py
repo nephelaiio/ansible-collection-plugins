@@ -31,6 +31,7 @@ from custom_filter import (
     reverse_record,
     search_regex,
     select_attributes,
+    set_difference,
     sorted_get,
     to_dict,
     to_kv,
@@ -41,7 +42,7 @@ from custom_filter import (
 
 def test_is_hash():
     assert is_hash({}) is True
-    assert is_hash(dict()) is True
+    assert is_hash({}) is True
     assert is_hash("") is False
     assert is_hash([]) is False
 
@@ -468,3 +469,12 @@ def test_search_regex():
     assert search_regex("^a.*", "abcd") is True
     assert search_regex("^.*bc.*", "abcd") is True
     assert search_regex("^.*bc.*", "abCd") is False
+
+
+def test_set_difference():
+    assert set_difference([[], []]) == []
+    assert set(set_difference([["a", "b"], ["c"]])).difference(set(["a", "b"])) == set()
+    assert set(set_difference([["a", "b"], []])).difference(set(["a", "b"])) == set()
+    assert set(set_difference([["a", "b"], ["a", "d"]])).difference(set(["b"])) == set()
+    assert set(set_difference([["a", "b"], ["b", "c"]])).difference(set(["a"])) == set()
+    assert set(set_difference([["a", "b"], ["a", "b"]])).difference(set([])) == set()

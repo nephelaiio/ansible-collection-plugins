@@ -127,7 +127,7 @@ def map_format(value, pattern):
     """
     Apply python string formatting on an object:
     .. sourcecode:: jinja
-        {{ "%s - %s"|format("Hello?", "Foo!") }}
+        {{ "%s - %s" | format("Hello?", "Foo!") }}
             -> Hello? - Foo!
     """
     if is_hash(value) and is_hash(pattern):
@@ -721,6 +721,17 @@ def search_regex(r, s):
     return bool(re.match(r, s))
 
 
+def set_difference(value):
+    """
+    Apply set difference operation to set pair:
+    .. sourcecode:: jinja
+        {{ [[['a', 'b', 'c], ['b', 'd']]] | map("map_difference") }}
+            -> [['a', 'c']]
+    """
+    [a, b] = value
+    return list(set(a).difference(set(b)))
+
+
 class FilterModule:
     """
     A class encapsulating a collection of jinja2 filters.
@@ -807,4 +818,5 @@ class FilterModule:
             "is_any_true": is_any_true,
             "is_all_true": is_all_true,
             "search_regex": search_regex,
+            "set_difference": set_difference,
         }

@@ -1,15 +1,26 @@
 ---
-- name: Verify
+- name: Verify filters
   hosts: localhost
   connection: local
   gather_facts: false
   tasks:
-    - name: Test
-      ansible.builtin.fail:
+    - name: Test map_format
+      ansible.builtin.assert:
+        that: result == expected
+        fail_msg: "{{ result }}"
       vars:
-        prefixes: ['a', 'b']
-        suffix: 'suffix'
-        expected: 'a:suffix,b:suffix'
-        filter: 'nephelaiio.plugins.map_format'
+        prefixes: ["a", "b"]
+        suffix: "suffix"
+        expected: "a:suffix,b:suffix"
+        filter: "nephelaiio.plugins.map_format"
         result: "{{ prefixes | map(filter, '%s:' + suffix) | join(',') }}"
-      when: result != expected
+
+    - name: Test set_difference
+      ansible.builtin.assert:
+        that: result == expected
+        fail_msg: "{{ result | to_json }}"
+      vars:
+        pairs: [[["a", "b"], ["b", "c"]]]
+        expected: [["a"]]
+        filter: "nephelaiio.plugins.set_difference"
+        result: "{{ pairs | map(filter) }}"

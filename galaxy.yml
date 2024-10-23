@@ -1,7 +1,7 @@
 ---
 namespace: nephelaiio
 name: plugins
-version: 0.0.6
+version: 0.0.7
 readme: README.md
 authors:
   - Ted Cook <teodoro.coo@gmail.com>
