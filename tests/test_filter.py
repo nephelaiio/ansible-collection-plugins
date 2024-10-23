@@ -1,40 +1,41 @@
-import sys
 import os
+import sys
+
 import pytest
 
 sys.path.append(os.path.join(os.path.dirname(sys.path[0]), "plugins", "filter"))
 
 print(sys.path)
 
-from custom_filter import (  # noqa: E402
-    reverse_record,
-    filename,
-    with_ext,
+from custom_filter import dict_to_list  # noqa: E402
+from custom_filter import (
     alias_keys,
+    drop_attributes,
+    filename,
+    ip_range,
+    is_all_true,
+    is_any_true,
+    is_hash,
+    key_item,
+    list_to_dict,
+    map_attributes,
+    map_flatten,
+    map_format,
+    map_group,
+    map_join,
+    map_values,
     merge_dicts,
     merge_dicts_reverse,
-    select_attributes,
-    drop_attributes,
-    map_format,
     merge_item,
-    key_item,
-    dict_to_list,
-    list_to_dict,
-    is_hash,
+    merge_join,
+    reverse_record,
+    search_regex,
+    select_attributes,
+    sorted_get,
     to_dict,
     to_kv,
     to_safe_yaml,
-    map_values,
-    map_attributes,
-    sorted_get,
-    ip_range,
-    map_flatten,
-    map_join,
-    merge_join,
-    map_group,
-    is_any_true,
-    is_all_true,
-    search_regex,
+    with_ext,
 )
 
 
@@ -194,7 +195,7 @@ def test_list_to_dict():
     ]
     assert list_to_dict(e, ["a", "b"], False) == {
         "first": {"a": {"b": "first"}},
-        "second": {"a": {"b": "second"}}
+        "second": {"a": {"b": "second"}},
     }
     with pytest.raises(KeyError):
         list_to_dict(e, ["a", "c"], False)
@@ -433,37 +434,37 @@ def test_map_group():
 
 
 def test_is_any_true():
-    assert is_any_true(["a"]) == True
-    assert is_any_true([""]) == False
-    assert is_any_true(["", "a"]) == True
-    assert is_any_true(["a", ""]) == True
-    assert is_any_true(["a", "b"]) == True
-    assert is_any_true([1]) == True
-    assert is_any_true([0]) == False
-    assert is_any_true([0, 1]) == True
-    assert is_any_true([1, 0]) == True
-    assert is_any_true([1, 2]) == True
+    assert is_any_true(["a"]) is True
+    assert is_any_true([""]) is False
+    assert is_any_true(["", "a"]) is True
+    assert is_any_true(["a", ""]) is True
+    assert is_any_true(["a", "b"]) is True
+    assert is_any_true([1]) is True
+    assert is_any_true([0]) is False
+    assert is_any_true([0, 1]) is True
+    assert is_any_true([1, 0]) is True
+    assert is_any_true([1, 2]) is True
 
 
 def test_is_all_true():
-    assert is_all_true(["a"]) == True
-    assert is_all_true([""]) == False
-    assert is_all_true(["", "a"]) == False
-    assert is_all_true(["a", ""]) == False
-    assert is_all_true(["a", "b"]) == True
-    assert is_all_true([1]) == True
-    assert is_all_true([0]) == False
-    assert is_all_true([0, 1]) == False
-    assert is_all_true([1, 0]) == False
-    assert is_all_true([1, 2]) == True
+    assert is_all_true(["a"]) is True
+    assert is_all_true([""]) is False
+    assert is_all_true(["", "a"]) is False
+    assert is_all_true(["a", ""]) is False
+    assert is_all_true(["a", "b"]) is True
+    assert is_all_true([1]) is True
+    assert is_all_true([0]) is False
+    assert is_all_true([0, 1]) is False
+    assert is_all_true([1, 0]) is False
+    assert is_all_true([1, 2]) is True
 
 
 def test_search_regex():
-    assert search_regex("^$", "") == True
-    assert search_regex("^[a-z]$", "") == False
-    assert search_regex("^[a-z]$", "a") == True
-    assert search_regex("^m", "match") == True
-    assert search_regex("^h", "match") == False
-    assert search_regex("^a.*", "abcd") == True
-    assert search_regex("^.*bc.*", "abcd") == True
-    assert search_regex("^.*bc.*", "abCd") == False
+    assert search_regex("^$", "") is True
+    assert search_regex("^[a-z]$", "") is False
+    assert search_regex("^[a-z]$", "a") is True
+    assert search_regex("^m", "match") is True
+    assert search_regex("^h", "match") is False
+    assert search_regex("^a.*", "abcd") is True
+    assert search_regex("^.*bc.*", "abcd") is True
+    assert search_regex("^.*bc.*", "abCd") is False
