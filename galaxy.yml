@@ -1,14 +1,14 @@
 ---
 namespace: nephelaiio
 name: plugins
-version: 0.0.5
+version: 0.0.6
 readme: README.md
 authors:
   - Ted Cook <teodoro.coo@gmail.com>
 description: Collection packaging of nephelaiio.plugins
 license:
   - MIT
-tags: ['postgresql']
+tags: ["postgresql"]
 dependencies: {}
 repository: https://github.com/nephelaiio/ansible-collection-plugins
 documentation: https://github.com/nephelaiio/ansible-collection-plugins
