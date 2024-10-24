@@ -732,6 +732,17 @@ def set_difference(value):
     return list(set(a).difference(set(b)))
 
 
+def inner_product(value):
+    """
+    Return the inner product of an array pair:
+    .. sourcecode:: jinja
+        {{ [['a', 'b', ['c', 'd']] | map("inner_product") }}
+            -> [['a, 'c'], ['a', 'd'], ['b', 'c'], ['b', 'd']]
+    """
+    [a, b] = value
+    return [list(x) for x in itertools.product(a, b)]
+
+
 class FilterModule:
     """
     A class encapsulating a collection of jinja2 filters.
@@ -819,4 +830,5 @@ class FilterModule:
             "is_all_true": is_all_true,
             "search_regex": search_regex,
             "set_difference": set_difference,
+            "inner_product": inner_product,
         }
