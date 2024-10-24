@@ -24,3 +24,13 @@
         expected: [["a"]]
         filter: "nephelaiio.plugins.set_difference"
         result: "{{ pairs | map(filter) }}"
+
+    - name: Test inner_product
+      ansible.builtin.assert:
+        that: result == expected
+        fail_msg: "{{ result | to_json }}"
+      vars:
+        pairs: [[["a", "b"], ["@c", "@d"]]]
+        expected: [["a@c", "a@d", "b@c", "b@d"]]
+        filter: "nephelaiio.plugins.inner_product"
+        result: "{{ pairs | map(filter) | map('map', 'join') }}"

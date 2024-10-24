@@ -37,6 +37,8 @@ Functions:
 - is_any_true(xs): Returns True if any element in the provided iterable is truthy.
 - is_all_true(xs): Returns True if all elements in the provided iterable are truthy.
 - search_regex(r, s): Checks if a string matches a given regex pattern.
+- set_difference(x): Return the set difference on a list-pair of lists
+- inner_product(x): Return the cartesian product of a list-pair of lists
 
 These functions are designed to assist in data manipulation and processing tasks, particularly useful in contexts
 where data structures need to be dynamically created, modified, or converted between different formats.
@@ -732,6 +734,17 @@ def set_difference(value):
     return list(set(a).difference(set(b)))
 
 
+def inner_product(value):
+    """
+    Return the inner product of an array pair:
+    .. sourcecode:: jinja
+        {{ [['a', 'b', ['c', 'd']] | map("inner_product") }}
+            -> [['a, 'c'], ['a', 'd'], ['b', 'c'], ['b', 'd']]
+    """
+    [a, b] = value
+    return [list(x) for x in itertools.product(a, b)]
+
+
 class FilterModule:
     """
     A class encapsulating a collection of jinja2 filters.
@@ -785,6 +798,8 @@ class FilterModule:
             - is_any_true: Checks if any element in an iterable is true.
             - is_all_true: Checks if all elements in an iterable are true.
             - search_regex: Checks if a string matches a given regex pattern.
+            - set_difference: Return the set difference on a list-pair of lists
+            - inner_product: Return the cartesian product of a list-pair of lists
         """
 
         return {
@@ -819,4 +834,5 @@ class FilterModule:
             "is_all_true": is_all_true,
             "search_regex": search_regex,
             "set_difference": set_difference,
+            "inner_product": inner_product,
         }

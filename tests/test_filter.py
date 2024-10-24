@@ -12,6 +12,7 @@ from custom_filter import (
     alias_keys,
     drop_attributes,
     filename,
+    inner_product,
     ip_range,
     is_all_true,
     is_any_true,
@@ -478,3 +479,22 @@ def test_set_difference():
     assert set(set_difference([["a", "b"], ["a", "d"]])).difference(set(["b"])) == set()
     assert set(set_difference([["a", "b"], ["b", "c"]])).difference(set(["a"])) == set()
     assert set(set_difference([["a", "b"], ["a", "b"]])).difference(set([])) == set()
+
+
+def test_inner_product():
+    assert inner_product([[], []]) == []
+    assert inner_product([["a"], ["b"]]) == [["a", "b"]]
+    assert inner_product([["a", "b"], ["c"]]) == [
+        ["a", "c"],
+        ["b", "c"],
+    ]
+    assert inner_product([["a"], ["c", "d"]]) == [
+        ["a", "c"],
+        ["a", "d"],
+    ]
+    assert inner_product([["a", "b"], ["c", "d"]]) == [
+        ["a", "c"],
+        ["a", "d"],
+        ["b", "c"],
+        ["b", "d"],
+    ]
