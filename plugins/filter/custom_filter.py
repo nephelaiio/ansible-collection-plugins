@@ -37,6 +37,8 @@ Functions:
 - is_any_true(xs): Returns True if any element in the provided iterable is truthy.
 - is_all_true(xs): Returns True if all elements in the provided iterable are truthy.
 - search_regex(r, s): Checks if a string matches a given regex pattern.
+- set_difference(x): Return the set difference on a list-pair of lists
+- inner_product(x): Return the cartesian product of a list-pair of lists
 
 These functions are designed to assist in data manipulation and processing tasks, particularly useful in contexts
 where data structures need to be dynamically created, modified, or converted between different formats.
@@ -796,6 +798,8 @@ class FilterModule:
             - is_any_true: Checks if any element in an iterable is true.
             - is_all_true: Checks if all elements in an iterable are true.
             - search_regex: Checks if a string matches a given regex pattern.
+            - set_difference: Return the set difference on a list-pair of lists
+            - inner_product: Return the cartesian product of a list-pair of lists
         """
 
         return {
