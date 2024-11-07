@@ -143,6 +143,7 @@ def test_map_format():
     assert map_format("a", "x%s") == "xa"
     assert map_format("a", "%s") == "a"
     assert map_format("a", "") == ""
+    assert map_format("a", "%s%s") == "aa"
     assert map_format({"a": "first"}, {"b": "x%s"}) == {"a": "first"}
     assert map_format({"a": "first"}, {"a": "x%s"}) == {"a": "xfirst"}
     assert map_format({"a": "first"}, {"a": "%sx"}) == {"a": "firstx"}

@@ -129,8 +129,8 @@ def map_format(value, pattern):
     """
     Apply python string formatting on an object:
     .. sourcecode:: jinja
-        {{ "%s - %s" | format("Hello?", "Foo!") }}
-            -> Hello? - Foo!
+        {{ "%s - %s" | map_format("hello") }}
+            -> hello - hello
     """
     if is_hash(value) and is_hash(pattern):
 
@@ -142,7 +142,8 @@ def map_format(value, pattern):
         result = {k: map_format(v, p[k]) for k, v in value.items()}
     else:
         try:
-            result = soft_str(pattern) % value
+            count = pattern.count("%s")
+            result = soft_str(pattern) % tuple([value] * count)
         except TypeError:
             result = pattern
     return result
