@@ -43,38 +43,30 @@ Functions:
 These functions are designed to assist in data manipulation and processing tasks, particularly useful in contexts
 where data structures need to be dynamically created, modified, or converted between different formats.
 """
-# pylint: enable=line-too-long
 
 import copy
 import functools
 import itertools
 import re
-import sys
+from collections import defaultdict
+from collections.abc import Sequence
 
 import netaddr
 import yaml
 from markupsafe import soft_str
 
-if sys.version_info[0] < 3:
-    from collections import Sequence  # pylint: disable=deprecated-class
-    from collections import defaultdict
-else:
-    from collections import defaultdict
-    from collections.abc import Sequence
 
-
-def is_hash(d):
+def is_hash(data):
     """
     Check if a given object is isomorphic to a dictionary.
 
     Args:
-    d (Any): The object to check.
+    data (Any): The object to check.
 
     Returns:
     bool: True if 'd' has a callable 'get' attribute, False otherwise.
     """
-
-    return callable(getattr(d, "get", None))
+    return callable(getattr(data, "get", None))
 
 
 def merge_dicts(x, y):
@@ -89,7 +81,6 @@ def merge_dicts(x, y):
     Returns:
     dict: A new dictionary containing the merged key-value pairs.
     """
-
     z = x.copy()
     z.update(y)
     return z
@@ -107,7 +98,6 @@ def merge_dicts_reverse(x, y):
     Returns:
     dict: A new dictionary with merged key-value pairs, prioritizing 'x' over 'y'.
     """
-
     return merge_dicts(y, x)  # pylint: disable=arguments-out-of-order
 
 
@@ -121,7 +111,6 @@ def filename(basename):
     Returns:
     str: The filename without the extension.
     """
-
     return basename.split(".")[0]
 
 
@@ -149,18 +138,17 @@ def map_format(value, pattern):
     return result
 
 
-def map_values(d):
+def map_values(data):
     """
     Extract the values from a dictionary and return them as a list.
 
     Args:
-    d (dict): The dictionary from which to extract values.
+    data (dict): The dictionary from which to extract values.
 
     Returns:
     list: A list containing all the values from the dictionary.
     """
-
-    return list(d.values())
+    return list(data.values())
 
 
 def reverse_record(record):
@@ -196,7 +184,6 @@ def with_ext(basename, ext):
     Returns:
     str: The basename with the appended extension.
     """
-
     return f"{filename(basename)}.{ext}"
 
 
@@ -211,7 +198,6 @@ def zone_fwd(zone, servers):
     Returns:
     dict: A dictionary representing the forward zone configuration.
     """
-
     return {
         f'zone "{zone}" IN': {
             "type": "forward",
@@ -221,61 +207,58 @@ def zone_fwd(zone, servers):
     }
 
 
-def head(x):
+def head(sequence_data):
     """
     Returns the first element of a sequence.
 
     Args:
-    x (list/tuple/str): The sequence from which to extract the first element.
+    sequence_data (list/tuple/str): The sequence from which to extract the first element.
 
     Returns:
     Any: The first element of the sequence.
     """
+    return sequence_data[0]
 
-    return x[0]
 
-
-def tail(x):
+def tail(sequence_data):
     """
     Returns all but the first element of a sequence.
 
     Args:
-    x (list/tuple/str): The sequence from which to extract elements.
+    sequence_data (list/tuple/str): The sequence from which to extract elements.
 
     Returns:
     list/tuple/str: A sequence of all but the first element.
     """
-    return x[1::]
+    return sequence_data[1::]
 
 
-def split_with(x, d):
+def split_with(target_string, delimiter):
     """
     Splits a string by the specified delimiter.
 
     Args:
-    x (str): The string to split.
-    d (str): The delimiter to use for splitting.
+    target_string (str): The string to split.
+    delimiter (str): The delimiter to use for splitting.
 
     Returns:
     list: A list of substrings.
     """
+    return target_string.split(delimiter)
 
-    return x.split(d)
 
-
-def join_with(x, d):
+def join_with(string_list, delimiter):
     """
     Joins a list of strings using a specified delimiter.
 
     Args:
-    x (list): The list of strings to join.
-    d (str): The delimiter to use for joining.
+    string_list (list): The list of strings to join.
+    delimiter (str): The delimiter to use for joining.
 
     Returns:
     str: The joined string.
     """
-
-    return d.join(x)
+    return delimiter.join(string_list)
 
 
 def alias_keys(d, alias=None):
@@ -285,7 +268,6 @@ def alias_keys(d, alias=None):
     Args:
     d (dict): The original dictionary
     """
-
     new_dict = copy.deepcopy(d)
     _alias = alias or {}
     for k, v in list(_alias.items()):
@@ -304,7 +286,6 @@ def map_attributes(d, atts):
     Returns:
     list: A list of values corresponding to the keys in atts found in d.
     """
-
     new_array = []
     for k in atts:
         if k in d:
@@ -324,7 +305,6 @@ def select_attributes(d, atts):
     Returns:
     dict: A new dictionary containing only the selected key-value pairs.
     """
-
     new_dict = {}
     for k, _ in list(d.items()):
         if k in atts:
@@ -343,7 +323,6 @@ def drop_attributes(d, x):
     Returns:
     dict: A new dictionary with the specified keys removed.
     """
-
     new_dict = copy.deepcopy(d)
     for y in list(itertools.chain.from_iterable([x])):
         if y in d:
@@ -364,7 +343,6 @@ def to_dict(x, key=None):
     Returns:
     dict: The resulting dictionary after applying the key transformation, if provided.
     """
-
     if key is None:
         result = dict(x)
     else:
@@ -383,7 +361,6 @@ def merge_item(item, key_attr):
     Args:
         item (tuple): A tuple containing two elements, where the first element is transformed based on `key
     """
-
     return dict(merge_dicts(item[1], to_dict(item[0], key_attr)))
 
 
@@ -420,7 +397,6 @@ def key_item(item, key_attr, remove_key=True):
     Note:
     - The function assumes that the nested keys correctly point to a value in the item.
     """
-
     new_item = copy.deepcopy(item)
     if isinstance(key_attr, (list, tuple)):
         if remove_key:
@@ -445,32 +421,30 @@ def dict_to_list(d, key_attr):
     Returns:
         list: A list where each element is a merged version of the key-value pairs from `d`, transformed by `key_attr`.
     """
-
     return [merge_item(item, key_attr) for item in d.items()]
 
 
-def list_to_dict(l, key_attr, remove_key=True):
+def list_to_dict(dict_list, key_attr, remove_key=True):
     """
     Converts a list of dictionaries into a dictionary by using a specified key attribute from each item.
 
     Args:
-        l (list): A list of dictionaries to convert.
+        dict_list (list): A list of dictionaries to convert.
         key_attr: The attribute to use as the key for each dictionary in the resulting dictionary.
         remove_key (bool, optional): If True, removes `key_attr` from each dictionary in the list. Default is True.
 
     Returns:
         dict: A dictionary with keys derived from `key_attr` of each item in the list.
     """
+    return dict([key_item(x, key_attr, remove_key) for x in dict_list])
 
-    return dict([key_item(x, key_attr, remove_key) for x in l])
 
-
-def to_kv(d, sep=".", prefix=""):
+def to_kv(data, sep=".", prefix=""):
     """
     Recursively converts a nested dictionary or list into a flat list of key-value pairs with compound keys.
 
     Args:
-        d (dict or list): The nested dictionary or list to flatten.
+        data (dict or list): The nested dictionary or list to flatten.
         sep (str, optional): The separator to use in compound keys. Default is '.'.
         prefix (str, optional): The prefix to prepend to each key. Default is an empty string.
 
@@ -478,20 +452,19 @@ def to_kv(d, sep=".", prefix=""):
         list: A flat list of dictionaries,
               each containing a 'key' and 'value' pair representing the flattened structure.
     """
-
-    if is_hash(d):
+    if is_hash(data):
         lvl = [
             to_kv(v, sep, (prefix != "" and (prefix + sep) or "") + k)
-            for k, v in d.items()
+            for k, v in data.items()
         ]
         return list(itertools.chain.from_iterable(lvl))
-    if isinstance(d, Sequence) and not isinstance(d, str):
+    if isinstance(data, Sequence) and not isinstance(data, str):
         lvl = [
             to_kv(v, sep, (prefix != "" and (prefix + sep) or "") + str(i))
-            for i, v in list(enumerate(d))
+            for i, v in list(enumerate(data))
         ]
         return list(itertools.chain.from_iterable(lvl))
-    return [{"key": prefix, "value": d}]
+    return [{"key": prefix, "value": data}]
 
 
 def to_safe_yaml(ds):
@@ -504,7 +477,6 @@ def to_safe_yaml(ds):
     Returns:
         str: A YAML formatted string representing the input data structure.
     """
-
     return yaml.safe_dump(ds)
 
 
@@ -539,7 +511,6 @@ def ip_range(spec):
     Returns:
         list: A list of IP addresses within the specified range.
     """
-
     addrs = spec.split("-")
     start = addrs[0]
     end = start if len(addrs) == 1 else addrs[1]
@@ -606,7 +577,6 @@ def map_join(d, atts, sep=" "):
     Returns:
         str: A single string made by joining the values of the specified keys in the dictionary.
     """
-
     return sep.join([str(x) for x in map_attributes(d, atts)])
 
 
@@ -623,19 +593,18 @@ def merge_join(d, attr, atts, sep=" "):
     Returns:
         dict: The original dictionary with the merged string added under the specified attribute.
     """
-
     item = {
         attr: map_join(d, atts, sep),
     }
     return {**d, **item}
 
 
-def map_group(l, key_atts, group_att=None):
+def map_group(dict_list, key_atts, group_att=None):
     """
     Groups a list of dictionaries by specified key attributes.
 
     Args:
-        l (list): A list of dictionaries to group.
+        dict_list (list): A list of dictionaries to group.
         key_atts (list): A list of keys to group by.
         group_att (str, optional): The attribute to group the data under. Defaults to None, which uses 'data' as default.
 
@@ -643,10 +612,15 @@ def map_group(l, key_atts, group_att=None):
         list: A list of dictionaries, each representing a group of items from the original list.
     """
 
+    def map_tuple(x):
+        if isinstance(x, list):
+            return tuple(sorted(x))
+        return x
+
     data_field = group_att or "data"
     groups = {}
-    for x in l:
-        _key = tuple(map_attributes(x, key_atts))
+    for x in dict_list:
+        _key = tuple(map(map_tuple, map_attributes(x, key_atts)))
         if _key in groups:
             cur_item = groups[_key]
             cur_data = cur_item[data_field]
@@ -680,7 +654,6 @@ def is_any_true(xs):
     Returns:
         bool: True if any element in the iterable is true, False otherwise.
     """
-
     return functools.reduce(
         lambda x, y: x or y,
         map(lambda x: bool(x), xs),  # pylint: disable=unnecessary-lambda
@@ -701,7 +674,6 @@ def is_all_true(xs):
     Note:
         This function uses a lambda function in conjunction with functools.reduce for evaluation.
     """
-
     return functools.reduce(
         lambda x, y: x and y,
         map(lambda x: bool(x), xs),  # pylint: disable=unnecessary-lambda
@@ -709,19 +681,18 @@ def is_all_true(xs):
     )
 
 
-def search_regex(r, s):
+def search_regex(regexp, search_string):
     """
     Checks if a string matches a given regular expression.
 
     Args:
-        r (str): The regular expression pattern to match against.
-        s (str): The string to search for a match.
+        regexp (str): The regular expression pattern to match against.
+        search_string (str): The string to search for a match.
 
     Returns:
         bool: True if the string matches the regular expression pattern, False otherwise.
     """
-
-    return bool(re.match(r, s))
+    return bool(re.match(regexp, search_string))
 
 
 def set_difference(value):

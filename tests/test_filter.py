@@ -7,9 +7,9 @@ sys.path.append(os.path.join(os.path.dirname(sys.path[0]), "plugins", "filter"))
 
 print(sys.path)
 
-from custom_filter import dict_to_list  # noqa: E402
-from custom_filter import (
+from custom_filter import (  # noqa: E402
     alias_keys,
+    dict_to_list,
     drop_attributes,
     filename,
     inner_product,
@@ -401,6 +401,16 @@ def test_map_group():
             "b": "two",
             "c": "chama",
         },
+        {
+            "a": "tres",
+            "b": ["three"],
+            "c": "buddy",
+        },
+        {
+            "a": "tres",
+            "b": ["three"],
+            "c": "pal",
+        },
     ]
 
     assert map_group(target, ["a", "b"]) == [
@@ -420,6 +430,14 @@ def test_map_group():
                 {"c": "chama"},
             ],
         },
+        {
+            "a": "tres",
+            "b": ["three"],
+            "data": [
+                {"c": "buddy"},
+                {"c": "pal"},
+            ],
+        },
     ]
 
     assert map_group(target, ["a", "b"], "c") == [
@@ -432,6 +450,11 @@ def test_map_group():
             "a": "dos",
             "b": "two",
             "c": ["chama"],
+        },
+        {
+            "a": "tres",
+            "b": ["three"],
+            "c": ["buddy", "pal"],
         },
     ]
 
