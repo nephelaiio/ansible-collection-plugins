@@ -1,12 +1,4 @@
-import os
-import sys
-
 import pytest
-
-sys.path.append(os.path.join(os.path.dirname(sys.path[0]), "plugins", "filter"))
-
-print(sys.path)
-
 from custom_filter import (  # noqa: E402
     alias_keys,
     dict_to_list,

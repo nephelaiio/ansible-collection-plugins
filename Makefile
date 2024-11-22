@@ -12,7 +12,7 @@ COLLECTION_VERSION = $$(yq '.version' < galaxy.yml)
 all: install version lint pytest verify
 
 pytest: install
-	poetry run pytest tests
+	poetry run pytest tests/pytest
 	@echo
 
 test: pytest verify

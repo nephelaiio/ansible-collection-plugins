@@ -1,12 +1,4 @@
-import sys
-import os
-import pytest
-
-sys.path.append(os.path.join(os.path.dirname(sys.path[0]), "plugins", "test"))
-
-print(sys.path)
-
-from custom_test import (test_network, test_property)  # noqa: E402
+from custom_test import test_network, test_property  # noqa: E402
 
 
 def test_test_network():

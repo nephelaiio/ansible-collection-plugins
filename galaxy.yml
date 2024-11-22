@@ -16,3 +16,5 @@ homepage: https://github.com/nephelaiio/ansible-collection-plugins
 issues: https://github.com/nephelaiio/ansible-collection-plugins/issues
 build_ignore:
   - Makefile
+  - .venv
+  - tests
