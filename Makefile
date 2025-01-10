@@ -19,6 +19,7 @@ test: pytest verify
 
 install:
 	@type poetry >/dev/null || pip3 install poetry
+	@poetry self add poetry-plugin-export
 	@type yq || sudo apt-get install -y yq
 	@poetry install --no-root
 
@@ -42,4 +43,4 @@ version:
 	@poetry run molecule --version
 
 debug: version
-	@poetry export --dev --without-hashes
+	@poetry export --dev --without-hashes || exit 0
