@@ -10,9 +10,10 @@ jobs:
   molecule:
     name: pytest
     runs-on: ubuntu-latest
-    matrix:
-      molecule_scenario:
-        - filter
+    strategy:
+      matrix:
+        molecule_scenario:
+          - filter
     steps:
       - name: Check out the codebase
         uses: actions/checkout@v4
