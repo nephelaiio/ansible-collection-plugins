@@ -1,0 +1,7 @@
+---
+plugin: nephelaiio.plugins.composite
+inventories:
+  - file: primary/hosts.yml
+    prefix: primary
+  - file: secondary/hosts.yml
+    prefix: secondary

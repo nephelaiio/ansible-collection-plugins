@@ -1,0 +1,23 @@
+---
+dependency:
+  name: galaxy
+  options:
+    role-file: requirements.yml
+    requirements-file: requirements.yml
+driver:
+  name: default
+platforms:
+  - name: localhost
+provisioner:
+  name: ansible
+  config_options:
+    inventory:
+      enable_plugins: nephelaiio.plugins.composite
+      unparsed_is_failed: true
+    defaults:
+      callbacks_enabled: ansible.posix.profile_tasks
+  inventory:
+    links:
+      hosts: inventory.yml
+verifier:
+  name: ansible
