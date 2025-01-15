@@ -112,38 +112,34 @@ class InventoryModule(BaseFileInventoryPlugin):
         """parses the inventory file"""
 
         msg = f"Loading inventory file {path} with prefix {prefix}"
-        self.display.warning(msg)
+        self.display.vvv(msg)
         try:
             data = self.load_file(path)
         except Exception as e:
             raise AnsibleParserError(f"Error loading inventory file {path}\n\n{e}")
+        if not prefix:
+            raise AnsibleParserError("Inventory prefix is required")
         if not data:
             raise AnsibleParserError("Parsed empty YAML file")
-        elif not isinstance(data, MutableMapping):
-            msg = f"YAML inventory has invalid structure, it should be a dictionary, got: {type(data)}"
-            raise AnsibleParserError(msg)
         elif data.get("plugin"):
             msg = "Plugin configuration YAML file, not YAML inventory"
             raise AnsibleParserError(msg)
 
-        if isinstance(data, MutableMapping):
-            self._parse_group(prefix, data["all"], "")
-            for group_name in data:
-                if not prefix:
-                    raise AnsibleParserError("Inventory prefix is required")
-                if group_name == prefix:
-                    msg = f"Group name {group_name} conflicts with prefix {prefix}"
-                    raise AnsibleParserError(msg)
-                if group_name == "all":
-                    continue
-                else:
-                    prefixed_group = self._prefixed_group_name(group_name, prefix)
-                    group_children = {"children": {prefixed_group: None}}
-                    self._parse_group(group_name, group_children, "")
-                    self._parse_group(prefixed_group, data[group_name], prefix)
-        else:
-            msg = f"Invalid data from file, expected dictionary and got:\n\n{to_native(data)}"
+        if not isinstance(data, MutableMapping):
+            msg = f"YAML inventory has invalid structure, it should be a dictionary, got: {type(data)}"
             raise AnsibleParserError(msg)
+        self._parse_group(prefix, data["all"], "")
+        for group_name in data:
+            if group_name == "all":
+                continue
+            if group_name == prefix:
+                msg = f"Group name {group_name} conflicts with prefix {prefix}"
+                raise AnsibleParserError(msg)
+            else:
+                prefixed_group = self._prefixed_group_name(group_name, prefix)
+                group_children = {"children": {prefixed_group: None}}
+                self._parse_group(group_name, group_children, "")
+                self._parse_group(prefixed_group, data[group_name], prefix)
 
         group_var_data = self.load_group_vars(self.loader, basedir(path))
         for group in group_var_data:
@@ -157,7 +153,7 @@ class InventoryModule(BaseFileInventoryPlugin):
                 self.display.vvv(f"Loading variable {var}")
                 var_data = group_vars[var]
                 self.inventory.set_variable(group_name, var, var_data)
-        self.display.warning(f"Loaded vars {group_var_data} for group {group_name}")
+        self.display.vvv(f"Loaded vars {group_var_data} for group {group_name}")
 
     def _parse_group(self, group_name, vars_data, prefix):
         """parses a group from the inventory file"""
@@ -182,12 +178,11 @@ class InventoryModule(BaseFileInventoryPlugin):
                             raise AnsibleParserError(msg)
 
                 for section in vars_data:
-                    if not isinstance(vars_data[section], DICT_TYPES):  # type: ignore[misc]
+                    if not isinstance(vars_data[section], DICT_TYPES):
                         msg = f"Skipping key {section} in group {group} as it is not a mapping, it is a {type(vars_data[section])}"
                         self.display.warning(msg)
                         continue
-
-                    if isinstance(vars_data[section], NONE_TYPE):  # type: ignore[misc]
+                    if isinstance(vars_data[section], NONE_TYPE):
                         msg = f"Skipping empty key {section} in group {group}"
                         self.display.vvv(msg)
                     elif section == "vars":
