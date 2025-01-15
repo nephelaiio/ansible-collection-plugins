@@ -19,5 +19,7 @@ provisioner:
   inventory:
     links:
       hosts: inventory.yml
+  playbooks:
+    verify: ./verify.yml
 verifier:
   name: ansible
