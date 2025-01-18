@@ -1,0 +1,6 @@
+---
+plugin: constructed
+strict: true
+groups:
+  level_a: inventory_hostname is regex('.*level_a$')
+  level_b: inventory_hostname is regex('.*level_b$')

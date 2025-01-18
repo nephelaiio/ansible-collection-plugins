@@ -1,7 +1,7 @@
 ---
 plugin: nephelaiio.plugins.composite
 inventories:
-  - file: primary/hosts.yml
+  - file: primary
     prefix: primary
-  - file: secondary/hosts.yml
+  - file: secondary
     prefix: secondary

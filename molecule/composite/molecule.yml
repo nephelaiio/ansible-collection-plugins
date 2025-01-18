@@ -12,7 +12,7 @@ provisioner:
   name: ansible
   config_options:
     inventory:
-      enable_plugins: nephelaiio.plugins.composite
+      enable_plugins: nephelaiio.plugins.composite, ansible.builtin.yaml, ansible.builtin.auto, ansible.builtin.constructed
       unparsed_is_failed: true
     defaults:
       callbacks_enabled: ansible.posix.profile_tasks

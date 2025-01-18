@@ -10,7 +10,12 @@
     _secondary_first_level: ["snd_first_level_a", "snd_first_level_b"]
     _secondary_second_level: ["snd_second_level_a", "snd_second_level_b"]
     _secondary_third_level: ["snd_third_level_a", "snd_third_level_b"]
-    _all: "{{ _primary + _secondary }}"
+    _primary_level_a:
+      ["pri_first_level_a", "pri_second_level_a", "pri_third_level_a"]
+    _primary_level_b:
+      ["pri_first_level_b", "pri_second_level_b", "pri_third_level_b"]
+    _localhost: ["localhost"]
+    _all: "{{ _primary + _secondary + _localhost }}"
     _first_level: "{{ _primary_first_level + _secondary_first_level }}"
     _second_level: "{{ _primary_second_level + _secondary_second_level }}"
     _third_level: "{{ _primary_third_level + _secondary_third_level }}"
@@ -21,14 +26,18 @@
     - name: Test all hostgroup
       ansible.builtin.assert:
         that:
-          - groups['all'] == _primary + _secondary
+          - _hosts | symmetric_difference(_all) | length == 0
+        fail_msg: |
+          Difference: {{ _hosts | ansible.builtin.symmetric_difference(_all) | join(', ') }}
+      vars:
+        _hosts: "{{ groups['all'] }}"
 
     - name: Test primary hostgroups
       ansible.builtin.assert:
         that:
-          - groups['primary'] | difference(_primary) | length == 0
-          - groups['primary_select_levels'] | difference(_primary_first_level + _primary_second_level) | length == 0
-          - groups['primary_first_level'] | difference(_primary_first_level) | length == 0
+          - groups['primary'] | symmetric_difference(_primary) | length == 0
+          - groups['primary_select_levels'] | symmetric_difference(_primary_first_level + _primary_second_level) | length == 0
+          - groups['primary_first_level'] | symmetric_difference(_primary_first_level) | length == 0
           - groups['primary_second_level'] | difference(_primary_second_level) | length == 0
           - groups['primary_third_level'] | difference(_primary_third_level) | length == 0
           - groups['primary_private_level'] | difference(_private_level) | length == 0
@@ -51,8 +60,14 @@
           - groups['third_level'] | difference(_third_level) | length == 0
           - groups['private_level'] | difference(_private_level) | length == 0
 
+    - name: Test constructed hostgroups
+      ansible.builtin.assert:
+        that:
+          - groups['primary_level_a'] | difference(_primary_level_a) | length == 0
+          - groups['primary_level_b'] | difference(_primary_level_b) | length == 0
+
 - name: Verify global group vars
-  hosts: all
+  hosts: all:!localhost
   gather_facts: false
   tasks:
     - name: Test global group var from inventory file
@@ -119,7 +134,7 @@
       ansible.builtin.assert:
         that: group_name == "third_level"
 
-- name: Verify primary select_levels group vars
+- name: Verify primary_select_levels group vars
   hosts: primary_select_levels
   gather_facts: false
   tasks:
@@ -127,7 +142,7 @@
       ansible.builtin.assert:
         that: group_id == "primary_select_levels"
 
-- name: Verify secondary select_levels group vars
+- name: Verify secondary_select_levels group vars
   hosts: secondary_select_levels
   gather_facts: false
   tasks:
@@ -135,7 +150,7 @@
       ansible.builtin.assert:
         that: group_id == "secondary_select_levels"
 
-- name: Verify primary second_level group vars
+- name: Verify primary_second_level group vars
   hosts: primary_second_level
   gather_facts: false
   tasks:
@@ -143,7 +158,7 @@
       ansible.builtin.assert:
         that: private_id == "primary_second_level"
 
-- name: Verify secondary second_level group vars
+- name: Verify secondary_second_level group vars
   hosts: secodary_second_level
   gather_facts: false
   tasks:
@@ -151,7 +166,7 @@
       ansible.builtin.assert:
         that: private_id is undefined
 
-- name: Verify primary third_level group vars
+- name: Verify primary_third_level group vars
   hosts: primary_third_level
   gather_facts: false
   tasks:
@@ -159,10 +174,53 @@
       ansible.builtin.assert:
         that: private_id == "primary_third_level"
 
-- name: Verify secondary third_level group vars
+- name: Verify secondary_third_level group vars
   hosts: secondary_third_level
   gather_facts: false
   tasks:
     - name: Test select_levels group vars
       ansible.builtin.assert:
         that: private_id == "secondary_third_level"
+
+- name: Verify primary_second_level_a host vars
+  hosts: primary_second_level_a
+  gather_facts: false
+  tasks:
+    - name: Test host_vars
+      ansible.builtin.assert:
+        that: host_id == inventory_hostname
+        fail_msg: "hostid = {{ host_id }}, expected {{ inventory_hostname }}"
+
+- name: Verify primary_third_level host vars
+  hosts: primary_third_level
+  gather_facts: false
+  tasks:
+    - name: Test host_vars
+      ansible.builtin.assert:
+        that: host_id == inventory_hostname
+        fail_msg: "hostid = {{ host_id }}, expected {{ inventory_hostname }}"
+
+- name: Verify secondary_first_level host vars
+  hosts: secondary_first_level
+  gather_facts: false
+  tasks:
+    - name: Test host_vars
+      ansible.builtin.assert:
+        that: host_id == inventory_hostname
+        fail_msg: "hostid = {{ host_id }}, expected {{ inventory_hostname }}"
+
+- name: Verify constructed group vars
+  hosts: primary_level_a
+  gather_facts: false
+  tasks:
+    - name: Test constructed group vars
+      ansible.builtin.assert:
+        that: construct_id == "a"
+
+- name: Verify constructed group vars
+  hosts: primary_level_b
+  gather_facts: false
+  tasks:
+    - name: Test constructed group vars
+      ansible.builtin.assert:
+        that: construct_id == "b"
