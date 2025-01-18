@@ -1,3 +1,7 @@
+"""
+Custom composite inventory plugin
+"""
+
 import os
 from collections.abc import MutableMapping
 
@@ -20,10 +24,11 @@ DOCUMENTATION = """
             choices: ['nephelaiio.plugins.composite']
 """
 
+NoneType = type(None)
+
 GROUP_VARS = "group_vars"
 HOST_VARS = "host_vars"
-NONE_TYPE = type(None)
-DICT_TYPES = (MutableMapping, NONE_TYPE)
+DICT_TYPES = (MutableMapping, NoneType)
 CANONICAL_PATHS: dict[str, str] = {}
 FOUND: dict[str, list[str]] = {}
 NAK: set[str] = set()
@@ -35,34 +40,27 @@ class InventoryModule(BaseFileInventoryPlugin):
 
     NAME = "composite"
 
-    def __init__(self):
-        super(InventoryModule, self).__init__()
-
     def _prefixed_group_name(self, group_name, prefix):
         if not prefix:
             return group_name
-        else:
-            return f"{prefix}_{group_name}"
+        return f"{prefix}_{group_name}"
 
     def verify_file(self, path):
         valid = False
-        if super(InventoryModule, self).verify_file(path):
+        if super().verify_file(path):
             _, file_ext = os.path.splitext(path)
             if file_ext in ["", ".yml", ".yaml"]:
                 valid = True
         return valid
 
-    def load_file(self, path):
-        return self.loader.load_from_file(path)
-
     def parse(self, inventory, loader, path, cache=True):
-        super(InventoryModule, self).parse(inventory, loader, path, cache)
+        super().parse(inventory, loader, path, cache)
         self._read_config_data(path)
 
         try:
-            data = self.load_file(path)
+            data = self.loader.load_from_file(path)
         except Exception as e:
-            raise AnsibleParserError(e)
+            raise AnsibleParserError(e) from e
 
         path_dir = basedir(path)
         group_vars_dir = os.path.join(path_dir, GROUP_VARS)
@@ -85,38 +83,38 @@ class InventoryModule(BaseFileInventoryPlugin):
         if not inventories or len(inventories) == 0:
             msg = f'Parsed file "{to_text(path)}" does not contain any inventories'
             raise AnsibleParserError(msg)
-        for inventory in inventories:
+        for subinventory in inventories:
+            _subinventory = to_text(subinventory)
             if not isinstance(data, MutableMapping):
-                msg = f"YAML inventory has invalid structure, it should be a dictionary, got: {type(inventory)}"
+                msg = f"YAML inventory has invalid structure, it should be a dictionary, got: {type(subinventory)}"
                 raise AnsibleParserError(msg)
-            if not inventory.get("file"):
-                msg = f'Inventory "{to_text(inventory)}" does not contain "file" key'
+            if not subinventory.get("file"):
+                msg = f'Inventory "{_subinventory}" does not contain "file" key'
                 raise AnsibleParserError(msg)
-            if not inventory.get("prefix"):
-                msg = f'Inventory "{to_text(inventory)}" does not contain "prefix" key'
+            if not subinventory.get("prefix"):
+                msg = f'Inventory "{_subinventory}" does not contain "prefix" key'
                 raise AnsibleParserError(msg)
-            source = os.path.realpath(inventory.get("file"))
+            source = os.path.realpath(subinventory.get("file"))
             if not os.path.exists(source):
                 msg = f'File "{source}" does not exist'
                 raise AnsibleParserError(msg)
-            prefix = inventory.get("prefix")
+            prefix = subinventory.get("prefix")
             manager = InventoryManager(loader=loader, sources=[source])
             manager.parse_sources()
             groups = manager.get_groups_dict()
             for group_name in groups:
                 if group_name == "ungrouped":
                     continue
-                elif group_name == prefix:
+                if group_name == prefix:
                     msg = f"Group name {group_name} conflicts with prefix {prefix}"
                     raise AnsibleParserError(msg)
+                if group_name == "all":
+                    prefix_group = prefix
                 else:
-                    if group_name == "all":
-                        prefix_group = prefix
-                    else:
-                        prefix_group = self._prefixed_group_name(group_name, prefix)
-                    self.inventory.add_group(group_name)
-                    self.inventory.add_group(prefix_group)
-                    self.inventory.add_child(group_name, prefix_group)
+                    prefix_group = self._prefixed_group_name(group_name, prefix)
+                self.inventory.add_group(group_name)
+                self.inventory.add_group(prefix_group)
+                self.inventory.add_child(group_name, prefix_group)
                 # load group_vars from inventory sources
                 group = manager.groups[group_name]
                 group_vars = group.vars
