@@ -115,16 +115,16 @@ class InventoryModule(BaseFileInventoryPlugin):
                 self.inventory.add_group(group_name)
                 self.inventory.add_group(prefix_group)
                 self.inventory.add_child(group_name, prefix_group)
-                # load group_vars from inventory sources
                 group = manager.groups[group_name]
-                group_vars = group.vars
+                # load group_vars from group_vars directory
+                group_vars = get_vars_from_path(loader, source, group, "task")
                 for var_name in group_vars:
                     var_value = group_vars[var_name]
                     msg = f"Registered var {var_name} for group {prefix_group}"
                     self.display.warning(msg)
                     self.inventory.set_variable(prefix_group, var_name, var_value)
-                # load group_vars from group_vars directory
-                group_vars = get_vars_from_path(loader, source, group, "task")
+                # load group_vars from inventory sources
+                group_vars = group.vars
                 for var_name in group_vars:
                     var_value = group_vars[var_name]
                     msg = f"Registered var {var_name} for group {prefix_group}"
@@ -136,15 +136,17 @@ class InventoryModule(BaseFileInventoryPlugin):
                     self.inventory.add_host(host_name, prefix_group)
                     msg = f"Registered host {host_name} for group {group_name}"
                     self.display.warning(msg)
+                    # load host_vars from host_vars directory
+                    host_vars = get_vars_from_path(loader, source, host, "task")
+                    for var_name in host_vars:
+                        msg = f"Registered var {var_name} for host {host_name}"
+                        self.display.warning(msg)
+                        var_value = host_vars[var_name]
+                        self.inventory.set_variable(host_name, var_name, var_value)
                     # load host_vars from inventory sources
                     host_vars = host.vars
                     for var_name in host_vars:
                         msg = f"Registered var {var_name} for host {host_name}"
-                        var_value = host.vars[var_name]
-                        self.inventory.set_variable(host_name, var_name, var_value)
-                    # load host_vars from host_vars directory
-                    group_vars = get_vars_from_path(loader, source, host, "task")
-                    for var_name in host_vars:
-                        msg = f"Registered var {var_name} for host {host_name}"
+                        self.display.warning(msg)
                         var_value = host.vars[var_name]
                         self.inventory.set_variable(host_name, var_name, var_value)
