@@ -1,0 +1,7 @@
+---
+plugin: nephelaiio.plugins.composite
+inventories:
+  - file: primary
+    prefix: primary
+  - file: secondary
+    prefix: secondary
