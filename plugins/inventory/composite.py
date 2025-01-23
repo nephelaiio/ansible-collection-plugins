@@ -53,14 +53,14 @@ class InventoryModule(BaseFileInventoryPlugin):
             _, file_ext = os.path.splitext(path)
             if file_ext in ["", ".yml", ".yaml"]:
                 try:
-                    with open(path, "r") as file:
+                    with open(path, "r") as file:  # pylint: disable=unspecified-encoding
                         data = yaml.safe_load(file)
                         if data and isinstance(data, dict):
                             has_plugin = "plugin" in data
                             # regex match for plugin name
                             is_plugin = re.match(rf".*{self.NAME}$", data.get("plugin"))
                             return bool(has_plugin and is_plugin)
-                except Exception:
+                except Exception:  # pylint: disable=broad-except
                     pass
         return valid
 
