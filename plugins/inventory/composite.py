@@ -3,8 +3,10 @@ Custom composite inventory plugin
 """
 
 import os
+import re
 from collections.abc import MutableMapping
 
+import yaml
 from ansible.errors import AnsibleParserError
 from ansible.inventory.manager import InventoryManager
 from ansible.module_utils.common.text.converters import to_text
@@ -50,7 +52,16 @@ class InventoryModule(BaseFileInventoryPlugin):
         if super().verify_file(path):
             _, file_ext = os.path.splitext(path)
             if file_ext in ["", ".yml", ".yaml"]:
-                valid = True
+                try:
+                    with open(path, "r") as file:
+                        data = yaml.safe_load(file)
+                        if data and isinstance(data, dict):
+                            has_plugin = "plugin" in data
+                            # regex match for plugin name
+                            is_plugin = re.match(rf".*{self.NAME}$", data.get("plugin"))
+                            return bool(has_plugin and is_plugin)
+                except Exception:
+                    pass
         return valid
 
     def parse(self, inventory, loader, path, cache=True):
