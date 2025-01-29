@@ -132,32 +132,32 @@ class InventoryModule(BaseFileInventoryPlugin):
                 for var_name in group_vars:
                     var_value = group_vars[var_name]
                     msg = f"Registered var {var_name} for group {prefix_group}"
-                    self.display.warning(msg)
+                    self.display.vvv(msg)
                     self.inventory.set_variable(prefix_group, var_name, var_value)
                 # load group_vars from inventory sources
                 group_vars = group.vars
                 for var_name in group_vars:
                     var_value = group_vars[var_name]
                     msg = f"Registered var {var_name} for group {prefix_group}"
-                    self.display.warning(msg)
+                    self.display.vvv(msg)
                     self.inventory.set_variable(prefix_group, var_name, var_value)
                 # register host
                 for host_name in groups[group_name]:
                     host = manager.get_host(host_name)
                     self.inventory.add_host(host_name, prefix_group)
                     msg = f"Registered host {host_name} for group {group_name}"
-                    self.display.warning(msg)
+                    self.display.vvv(msg)
                     # load host_vars from host_vars directory
                     host_vars = get_vars_from_path(loader, source, host, "task")
                     for var_name in host_vars:
                         msg = f"Registered var {var_name} for host {host_name}"
-                        self.display.warning(msg)
+                        self.display.vvv(msg)
                         var_value = host_vars[var_name]
                         self.inventory.set_variable(host_name, var_name, var_value)
                     # load host_vars from inventory sources
                     host_vars = host.vars
                     for var_name in host_vars:
                         msg = f"Registered var {var_name} for host {host_name}"
-                        self.display.warning(msg)
+                        self.display.vvv(msg)
                         var_value = host.vars[var_name]
                         self.inventory.set_variable(host_name, var_name, var_value)
