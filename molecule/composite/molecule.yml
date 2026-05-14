@@ -23,3 +23,6 @@ provisioner:
     verify: ./verify.yml
 verifier:
   name: ansible
+scenario:
+  test_sequence:
+    - verify

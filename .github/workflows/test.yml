@@ -25,5 +25,5 @@ jobs:
       - name: Run molecule test
         uses: pokerops/ansible-utils@master
         with:
-          run: just --set MOLECULE_SCENARIO ${{ matrix.scenario }} test
+          run: just --set MOLECULE_SCENARIO ${{ matrix.scenario }} requirements test
           cache: "false"
