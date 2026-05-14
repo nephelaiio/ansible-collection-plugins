@@ -1,10 +1,4 @@
-.DS_Store
-.idea
-*.log
-tmp/
+.ansible/
+.devbox/
 
-*.py[cod]
-*.egg
-build
-htmlcov
-*.tar.gz
+*.pyc
