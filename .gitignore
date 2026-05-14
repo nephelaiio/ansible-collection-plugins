@@ -2,3 +2,4 @@
 .devbox/
 
 *.pyc
+*.tar.gz

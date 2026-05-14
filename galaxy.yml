@@ -15,6 +15,6 @@ documentation: https://github.com/nephelaiio/ansible-collection-plugins
 homepage: https://github.com/nephelaiio/ansible-collection-plugins
 issues: https://github.com/nephelaiio/ansible-collection-plugins/issues
 build_ignore:
-  - Makefile
-  - .venv
-  - tests
+  - ".devbox"
+  - ".venv"
+  - "tests"
