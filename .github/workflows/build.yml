@@ -6,5 +6,5 @@ on:
   pull_request:
     branches: ["main", "master"]
 jobs:
-  lint:
+  build:
     uses: pokerops/ansible-utils/.github/workflows/build.yml@master
