@@ -1,14 +1,20 @@
 ---
 name: test
-
 on:
   pull_request:
     branches:
       - master
-
 jobs:
+  pytest:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Run python test
+        uses: pokerops/ansible-utils@master
+        with:
+          run: just python-test
+          cache: "false"
+
   molecule:
-    name: pytest
     runs-on: ubuntu-latest
     strategy:
       matrix:
@@ -16,32 +22,8 @@ jobs:
           - filter
           - composite
     steps:
-      - name: Check out the codebase
-        uses: actions/checkout@v4
-
-      - name: Set up python 3
-        uses: actions/setup-python@v4
+      - name: Run molecule test
+        uses: pokerops/ansible-utils@master
         with:
-          python-version: "3.12"
-
-      - name: Update ubuntu repositories
-        run: sudo apt-get update
-
-      - name: Install make
-        run: sudo apt-get install -y make
-
-      - name: Install dependencies
-        run: make install
-
-      - name: Debug test environment
-        run: make debug
-
-      - name: Install role requirements
-        run: make requirements
-
-      - name: Run tests.
-        run: make test
-        env:
-          PY_COLORS: "1"
-          ANSIBLE_FORCE_COLOR: "1"
-          MOLECULE_SCENARIO: ${{ matrix.scenario }}
+          run: just --set MOLECULE_SCENARIO ${{ matrix.scenario }} requirements test
+          cache: "false"

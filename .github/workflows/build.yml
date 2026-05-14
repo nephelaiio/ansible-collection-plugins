@@ -1,28 +1,10 @@
 ---
 name: build
+permissions:
+  contents: read
 on:
   pull_request:
-    branches:
-      - master
-
+    branches: ["main", "master"]
 jobs:
   build:
-    name: build
-    runs-on: ubuntu-latest
-    steps:
-      - name: Check out the codebase.
-        uses: actions/checkout@v4
-
-      - name: Set up Python 3
-        uses: actions/setup-python@v4
-        with:
-          python-version: "3.12"
-
-      - name: Update ubuntu repositories
-        run: sudo apt-get update
-
-      - name: Install make
-        run: sudo apt-get install -y make
-
-      - name: Build collection
-        run: make build
+    uses: pokerops/ansible-utils/.github/workflows/build.yml@master

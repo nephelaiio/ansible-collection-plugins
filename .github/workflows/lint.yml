@@ -1,29 +1,18 @@
 ---
 name: lint
-
+permissions:
+  contents: read
 on:
   pull_request:
-    branches:
-      - master
-
+    branches: ["main", "master"]
 jobs:
-  lint:
-    name: lint
+  ansible:
+    uses: pokerops/ansible-utils/.github/workflows/lint.yml@master
+  python:
     runs-on: ubuntu-latest
     steps:
-      - name: Check out the codebase
-        uses: actions/checkout@v4
-
-      - name: Set up python 3
-        uses: actions/setup-python@v4
+      - name: Lint repository
+        uses: pokerops/ansible-utils@master
         with:
-          python-version: "3.12"
-
-      - name: Update ubuntu repositories
-        run: sudo apt-get update
-
-      - name: Install make
-        run: sudo apt-get install -y make
-
-      - name: Lint code
-        run: make lint
+          run: "just python-lint"
+          cache: "false"

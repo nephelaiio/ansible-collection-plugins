@@ -34,3 +34,54 @@
         expected: [["a@c", "a@d", "b@c", "b@d"]]
         filter: "nephelaiio.plugins.inner_product"
         result: "{{ pairs | map(filter) | map('map', 'join') }}"
+
+    - name: Set up combined filter input facts
+      ansible.builtin.set_fact:
+        _input:
+          - item: "db1"
+            query_result:
+              - oid: 17367
+                srvacl: "{postgres=U/postgres,molecule=U/postgres,test=U/postgres}"
+                srvfdw: 17349
+                srvname: "remote_bladb_server"
+                srvoptions:
+                  - "host=patroni-fdw-haproxy-01"
+                  - "dbname=remote_BlaDB"
+                  - "fetch_size=100"
+                  - "port=5433"
+                  - "updatable=true"
+                  - "truncatable=true"
+                  - "application_name=fdw_BlaDB"
+                srvowner: 10
+                srvtype: null
+                srvversion: null
+
+    - name: Format query data
+      ansible.builtin.set_fact:
+        _fdw_data: "{{ _output | flatten | list }}"
+        _fdw_trgt:
+          - foreign_server: "remote_bladb_server"
+            options:
+              application_name: "fdw_BlaDB"
+              dbname: "remote_BlaDB"
+              fetch_size: "100"
+              host: "patroni-fdw-haproxy-01"
+              port: "5433"
+              truncatable: "true"
+              updatable: "true"
+            source: "db1"
+      vars:
+        _srvoptions: "{{ _input | map(attribute='query_result') | map('map', attribute='srvoptions') }}"
+        _srvoptpairs: "{{ _srvoptions | map('map', 'map', 'split', '=') }}"
+        _srvdata: "{{ _srvoptpairs | map('map', 'community.general.dict') }}"
+        _options: "{{ _srvdata | map('map', 'nephelaiio.plugins.to_dict', 'options') }}"
+        _sourcestrs: '{{ _input | map(attribute=''item'') | map(''nephelaiio.plugins.map_format'', ''[{ "source": "%s"}]'') }}'
+        _sources: "{{ _sourcestrs | map('ansible.builtin.from_json') }}"
+        _srcopts: "{{ _sources | zip(_options) | map('nephelaiio.plugins.inner_product') | map('map', 'combine') }}"
+        _fserverstrs: "{{ _input | map(attribute='query_result') | map('map', attribute='srvname') }}"
+        _fservers: "{{ _fserverstrs | map('map', 'nephelaiio.plugins.to_dict', 'foreign_server') }}"
+        _output: "{{ _srcopts | zip(_fservers) | map('nephelaiio.plugins.inner_product') | map('map', 'combine') }}"
+
+    - name: Verify output format
+      ansible.builtin.assert:
+        that: _fdw_trgt | symmetric_difference(_fdw_data) | length == 0
