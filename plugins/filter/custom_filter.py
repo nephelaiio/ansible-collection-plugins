@@ -39,6 +39,7 @@ Functions:
 - search_regex(r, s): Checks if a string matches a given regex pattern.
 - set_difference(x): Return the set difference on a list-pair of lists
 - inner_product(x): Return the cartesian product of a list-pair of lists
+- cons(x): Append element to empty list
 
 These functions are designed to assist in data manipulation and processing tasks, particularly useful in contexts
 where data structures need to be dynamically created, modified, or converted between different formats.
@@ -50,13 +51,19 @@ import itertools
 import re
 from collections import defaultdict
 from collections.abc import Sequence
+from typing import Any, Iterable, TypeVar, overload
 
 import netaddr
 import yaml
 from markupsafe import soft_str
 
+X = TypeVar("X")
+Y = TypeVar("Y")
+A = TypeVar("A")
+B = TypeVar("B")
 
-def is_hash(data):
+
+def is_hash(data: Any) -> bool:
     """
     Check if a given object is isomorphic to a dictionary.
 
@@ -69,7 +76,7 @@ def is_hash(data):
     return callable(getattr(data, "get", None))
 
 
-def merge_dicts(x, y):
+def merge_dicts(x: dict[X, A], y: dict[Y, B]) -> dict[X | Y, A | B]:
     """
     Merge two dictionaries.
     If there are overlapping keys, the values from the second dictionary will be used.
@@ -81,12 +88,11 @@ def merge_dicts(x, y):
     Returns:
     dict: A new dictionary containing the merged key-value pairs.
     """
-    z = x.copy()
-    z.update(y)
+    z = {**x, **y}
     return z
 
 
-def merge_dicts_reverse(x, y):
+def merge_dicts_reverse(x: dict[X, A], y: dict[Y, B]) -> dict[X | Y, A | B]:
     """
     Merge two dictionaries in reverse order.
     The values from the first dictionary will overwrite those from the second.
@@ -98,10 +104,10 @@ def merge_dicts_reverse(x, y):
     Returns:
     dict: A new dictionary with merged key-value pairs, prioritizing 'x' over 'y'.
     """
-    return merge_dicts(y, x)  # pylint: disable=arguments-out-of-order
+    return merge_dicts(y, x)
 
 
-def filename(basename):
+def filename(basename: str) -> str:
     """
     Extracts the filename (excluding extension) from a given basename.
 
@@ -114,9 +120,36 @@ def filename(basename):
     return basename.split(".")[0]
 
 
+@overload
+def map_format(value: dict, pattern: dict) -> dict: ...
+
+
+@overload
+def map_format(value: Any, pattern: str) -> str: ...
+
+
 def map_format(value, pattern):
     """
-    Apply python string formatting on an object:
+    Apply Python string formatting to a value using a pattern.
+
+    When both arguments are dicts, applies formatting recursively per key:
+    each value in `value` is formatted using the corresponding pattern in `pattern`.
+    Keys missing from `pattern` default to the identity format "%s".
+
+    When `pattern` is a string, substitutes all occurrences of "%s" with `value`.
+    If formatting fails due to a TypeError, `pattern` is returned as-is.
+
+    Args:
+        value (dict | Any): The value(s) to format. If a dict, keys are matched
+            against `pattern`; otherwise treated as a scalar substitution value.
+        pattern (dict | str): The format pattern(s). If a dict, maps keys to
+            "%s"-style format strings; otherwise a single "%s"-style format string.
+
+    Returns:
+        dict | str: A formatted dict when both args are dicts; a formatted string
+            otherwise. Returns `pattern` unchanged if formatting raises TypeError.
+
+    Example:
     .. sourcecode:: jinja
         {{ "%s - %s" | map_format("hello") }}
             -> hello - hello
@@ -138,7 +171,7 @@ def map_format(value, pattern):
     return result
 
 
-def map_values(data):
+def map_values(data: dict[X, Y]) -> list[Y]:
     """
     Extract the values from a dictionary and return them as a list.
 
@@ -151,7 +184,7 @@ def map_values(data):
     return list(data.values())
 
 
-def reverse_record(record):
+def reverse_record(record: dict[str, str]) -> dict[str, str]:
     """
     Reverses the IP address and hostname in a record, formatting the IP address for reverse DNS lookup.
 
@@ -173,7 +206,7 @@ def reverse_record(record):
     }
 
 
-def with_ext(basename, ext):
+def with_ext(basename: str, ext: str) -> str:
     """
     Appends an extension to a given basename.
 
@@ -187,7 +220,7 @@ def with_ext(basename, ext):
     return f"{filename(basename)}.{ext}"
 
 
-def zone_fwd(zone, servers):
+def zone_fwd(zone: str, servers: list[str]) -> dict[str, dict[str, str | list[str]]]:
     """
     Creates a DNS forward zone configuration.
 
@@ -207,33 +240,33 @@ def zone_fwd(zone, servers):
     }
 
 
-def head(sequence_data):
+def head(sequence_data: list[X]) -> X:
     """
     Returns the first element of a sequence.
 
     Args:
-    sequence_data (list/tuple/str): The sequence from which to extract the first element.
+    sequence_data (list[X]): The sequence from which to extract the first element.
 
     Returns:
-    Any: The first element of the sequence.
+    X: The first element of the sequence.
     """
     return sequence_data[0]
 
 
-def tail(sequence_data):
+def tail(sequence_data: list[X]) -> list[X]:
     """
     Returns all but the first element of a sequence.
 
     Args:
-    sequence_data (list/tuple/str): The sequence from which to extract elements.
+    sequence_data (list[X]): The sequence from which to extract elements.
 
     Returns:
-    list/tuple/str: A sequence of all but the first element.
+    list[X]: All but the first element of the sequence.
     """
     return sequence_data[1::]
 
 
-def split_with(target_string, delimiter):
+def split_with(target_string: str, delimiter: str) -> list[str]:
     """
     Splits a string by the specified delimiter.
 
@@ -247,12 +280,12 @@ def split_with(target_string, delimiter):
     return target_string.split(delimiter)
 
 
-def join_with(string_list, delimiter):
+def join_with(string_list: Iterable[str], delimiter: str) -> str:
     """
     Joins a list of strings using a specified delimiter.
 
     Args:
-    string_list (list): The list of strings to join.
+    string_list (Iterable[str]): The iterable of strings to join.
     delimiter (str): The delimiter to use for joining.
 
     Returns:
@@ -261,21 +294,25 @@ def join_with(string_list, delimiter):
     return delimiter.join(string_list)
 
 
-def alias_keys(d, alias=None):
+def alias_keys(d: dict[X, Y], alias: dict[X, X] | None = None) -> dict[X, Y]:
     """
     Creates a new dictionary with keys renamed as per the alias mapping.
 
     Args:
-    d (dict): The original dictionary
+    d (dict[X, Y]): The original dictionary.
+    alias (dict[X, X] | None): A mapping of old keys to new keys. If None, the dictionary is returned unchanged.
+
+    Returns:
+    dict[X, Y]: A deep copy of the dictionary with keys renamed according to the alias mapping.
     """
-    new_dict = copy.deepcopy(d)
+    new_dict: dict[X, Y] = copy.deepcopy(d)
     _alias = alias or {}
     for k, v in list(_alias.items()):
         new_dict[v] = new_dict[k]
     return new_dict
 
 
-def map_attributes(d, atts):
+def map_attributes(d: dict[X, Y], atts: list[X]) -> list[Y]:
     """
     Extracts values from the input dictionary (d) for the keys listed in atts.
 
@@ -293,7 +330,7 @@ def map_attributes(d, atts):
     return new_array
 
 
-def select_attributes(d, atts):
+def select_attributes(d: dict[X, Y], atts: list[X]) -> dict[X, Y]:
     """
     Creates a new dictionary containing only the key-value pairs from the input dictionary (d)
     where the keys are specified in atts.
@@ -312,7 +349,7 @@ def select_attributes(d, atts):
     return new_dict
 
 
-def drop_attributes(d, x):
+def drop_attributes(d: dict[X, Y], x: list[X]) -> dict[X, Y]:
     """
     Returns a new dictionary with specified keys removed from the input dictionary (d).
 
@@ -330,18 +367,33 @@ def drop_attributes(d, x):
     return new_dict
 
 
+@overload
+def to_dict(x: Iterable[tuple[X, Y]], key: None = None) -> dict[X, Y]: ...
+
+
+@overload
+def to_dict(x: Any, key: dict[str, str]) -> dict[str, str]: ...
+
+
+@overload
+def to_dict(x: Any, key: X) -> dict[X, Any]: ...
+
+
 def to_dict(x, key=None):
     """
-    Converts the input into a dictionary. If a key function or mapping is provided,
-    it applies the transformation as specified by the key.
+    Converts the input into a dictionary.
+
+    Three modes depending on `key`:
+    - key=None: `x` must be an iterable of (key, value) pairs; converted directly via dict().
+    - key is a dict: keys and values are format strings applied to `x` via map_format.
+    - key is a scalar: returns a single-entry dict {key: x}.
 
     Args:
-    x (Any): The input to be converted into a dictionary.
-    key (function or dict, optional): A function or a dictionary defining how to transform
-        the input into key-value pairs. If None, the input is converted directly into a dictionary.
+        x (Iterable[tuple] | Any): The input to convert. Must be an iterable of pairs when key is None.
+        key (None | dict[str, str] | Any): Controls the conversion mode. Defaults to None.
 
     Returns:
-    dict: The resulting dictionary after applying the key transformation, if provided.
+        dict[X, Y] | dict[str, str] | dict[X, Any]: The resulting dictionary.
     """
     if key is None:
         result = dict(x)
@@ -353,24 +405,32 @@ def to_dict(x, key=None):
     return result
 
 
-def merge_item(item, key_attr):
+def merge_item(item: tuple[Any, dict[Any, Any]], key_attr: Any) -> dict[Any, Any]:
     """
     Merges a tuple of two items (a key-value pair) into a single dictionary,
     using a specified attribute for key transformation.
 
     Args:
-        item (tuple): A tuple containing two elements, where the first element is transformed based on `key
+        item (tuple): A tuple containing two elements, where the first element is transformed based on `key_attr`.
+        key_attr: The key transformation to apply to the first element of the tuple.
+
+    Returns:
+        dict: A merged dictionary combining the second element with the transformed first element.
     """
     return dict(merge_dicts(item[1], to_dict(item[0], key_attr)))
 
 
-def key_item(item, key_attr, remove_key=True):
+def key_item(
+    item: dict[Any, Any],
+    key_attr: Any,
+    remove_key: bool = True,
+) -> list[Any]:
     """
     Extracts a value from the given item using a specified key or nested keys, and returns
     this value along with a modified copy of the original item.
 
     Parameters:
-    - item (dict or similar): The item from which to extract the value. It should be a
+    - item (hash): The item from which to extract the value. It should be a
       dictionary or a dictionary-like object.
     - key_attr (int, float, str, bool, list, tuple): The key or nested keys used to extract
       the value from the item. If it's a list or tuple, it is treated as nested keys.
@@ -410,7 +470,7 @@ def key_item(item, key_attr, remove_key=True):
     raise ValueError("key_attr must be scalar or list")
 
 
-def dict_to_list(d, key_attr):
+def dict_to_list(d: dict[Any, dict[Any, Any]], key_attr: Any) -> list[dict[Any, Any]]:
     """
     Converts a dictionary into a list of merged items based on a specified key attribute.
 
@@ -424,7 +484,9 @@ def dict_to_list(d, key_attr):
     return [merge_item(item, key_attr) for item in d.items()]
 
 
-def list_to_dict(dict_list, key_attr, remove_key=True):
+def list_to_dict(
+    dict_list: list[dict[Any, Any]], key_attr: Any, remove_key: bool = True
+) -> dict[Any, Any]:
     """
     Converts a list of dictionaries into a dictionary by using a specified key attribute from each item.
 
@@ -439,7 +501,7 @@ def list_to_dict(dict_list, key_attr, remove_key=True):
     return dict([key_item(x, key_attr, remove_key) for x in dict_list])
 
 
-def to_kv(data, sep=".", prefix=""):
+def to_kv(data: Any, sep: str = ".", prefix: str = "") -> list[dict[str, Any]]:
     """
     Recursively converts a nested dictionary or list into a flat list of key-value pairs with compound keys.
 
@@ -467,7 +529,7 @@ def to_kv(data, sep=".", prefix=""):
     return [{"key": prefix, "value": data}]
 
 
-def to_safe_yaml(ds):
+def to_safe_yaml(ds: Any) -> str:
     """
     Converts a data structure into a YAML formatted string using safe dumping.
 
@@ -480,7 +542,7 @@ def to_safe_yaml(ds):
     return yaml.safe_dump(ds)
 
 
-def sorted_get(d, ks):
+def sorted_get(d: dict[X, Y], ks: list[X]) -> Y:
     """
     Retrieves the value from a dictionary for the first key in a list of keys that exists in the dictionary.
 
@@ -501,7 +563,7 @@ def sorted_get(d, ks):
     raise KeyError(f"None of {ks} keys found")
 
 
-def ip_range(spec):
+def ip_range(spec: str) -> list[str]:
     """
     Generates a list of IP addresses in the specified range.
 
@@ -517,7 +579,7 @@ def ip_range(spec):
     return [str(ip) for ip in netaddr.iter_iprange(start, end)]
 
 
-def map_flatten(o, env=""):
+def map_flatten(o: dict | list, env: str = "") -> dict[str, Any]:
     """
     Flattens a nested dictionary or list into a single-level dictionary with compound keys.
 
@@ -565,7 +627,7 @@ def map_flatten(o, env=""):
     return o
 
 
-def map_join(d, atts, sep=" "):
+def map_join(d: dict[X, Any], atts: list[X], sep: str = " ") -> str:
     """
     Joins selected attributes from a dictionary into a single string.
 
@@ -580,7 +642,7 @@ def map_join(d, atts, sep=" "):
     return sep.join([str(x) for x in map_attributes(d, atts)])
 
 
-def merge_join(d, attr, atts, sep=" "):
+def merge_join(d: dict[X, Any], attr: X, atts: list[X], sep: str = " ") -> dict[X, Any]:
     """
     Merges selected attributes into a single string and adds it to the dictionary.
 
@@ -599,7 +661,11 @@ def merge_join(d, attr, atts, sep=" "):
     return {**d, **item}
 
 
-def map_group(dict_list, key_atts, group_att=None):
+def map_group(
+    dict_list: list[dict[X, Any]],
+    key_atts: list[X],
+    group_att: X | None = None,
+) -> list[dict[X, Any]]:
     """
     Groups a list of dictionaries by specified key attributes.
 
@@ -644,7 +710,7 @@ def map_group(dict_list, key_atts, group_att=None):
     return list(groups.values())
 
 
-def is_any_true(xs):
+def is_any_true(xs: Iterable[X]) -> bool:
     """
     Checks if any element in the provided iterable is true.
 
@@ -656,12 +722,12 @@ def is_any_true(xs):
     """
     return functools.reduce(
         lambda x, y: x or y,
-        map(lambda x: bool(x), xs),  # pylint: disable=unnecessary-lambda
+        map(lambda x: bool(x), xs),
         False,
     )
 
 
-def is_all_true(xs):
+def is_all_true(xs: Iterable[X]) -> bool:
     """
     Checks if all elements in the provided iterable are true.
 
@@ -676,12 +742,12 @@ def is_all_true(xs):
     """
     return functools.reduce(
         lambda x, y: x and y,
-        map(lambda x: bool(x), xs),  # pylint: disable=unnecessary-lambda
+        map(lambda x: bool(x), xs),
         True,
     )
 
 
-def search_regex(regexp, search_string):
+def search_regex(regexp: str, search_string: str) -> bool:
     """
     Checks if a string matches a given regular expression.
 
@@ -695,26 +761,56 @@ def search_regex(regexp, search_string):
     return bool(re.match(regexp, search_string))
 
 
-def set_difference(value):
+def set_difference(value: Iterable[Iterable[X]]) -> list[X]:
     """
-    Apply set difference operation to set pair:
+    Apply set difference operation to a pair of iterables.
+
+    Args:
+        value (Iterable[Iterable[X]]): A two-element iterable where the first element
+            is the base set and the second is the set of elements to remove.
+
+    Returns:
+        list[X]: Elements present in the first iterable but not in the second.
+
+    Example:
     .. sourcecode:: jinja
-        {{ [[['a', 'b', 'c], ['b', 'd']]] | map("map_difference") }}
-            -> [['a', 'c']]
+        {{ [['a', 'b', 'c'], ['b', 'd']] | set_difference }}
+            -> ['a', 'c']
     """
     [a, b] = value
     return list(set(a).difference(set(b)))
 
 
-def inner_product(value):
+def inner_product(value: Iterable[Iterable[X]]) -> list[list[X]]:
     """
-    Return the inner product of an array pair:
+    Return the cartesian product of a pair of iterables.
+
+    Args:
+        value (Iterable[Iterable[X]]): A two-element iterable containing the two iterables to combine.
+
+    Returns:
+        list[list[X]]: All combinations of one element from each iterable.
+
+    Example:
     .. sourcecode:: jinja
-        {{ [['a', 'b', ['c', 'd']] | map("inner_product") }}
-            -> [['a, 'c'], ['a', 'd'], ['b', 'c'], ['b', 'd']]
+        {{ [['a', 'b'], ['c', 'd']] | inner_product }}
+            -> [['a', 'c'], ['a', 'd'], ['b', 'c'], ['b', 'd']]
     """
     [a, b] = value
     return [list(x) for x in itertools.product(a, b)]
+
+
+def cons(x: X) -> list[X]:
+    """
+    Wraps a single element in a list.
+
+    Args:
+        x (X): The element to wrap.
+
+    Returns:
+        list[X]: A list containing only the given element.
+    """
+    return [x]
 
 
 class FilterModule:
@@ -772,6 +868,7 @@ class FilterModule:
             - search_regex: Checks if a string matches a given regex pattern.
             - set_difference: Return the set difference on a list-pair of lists
             - inner_product: Return the cartesian product of a list-pair of lists
+            - cons: Lift element to list of elements
         """
 
         return {
@@ -807,4 +904,5 @@ class FilterModule:
             "search_regex": search_regex,
             "set_difference": set_difference,
             "inner_product": inner_product,
+            "cons": cons,
         }

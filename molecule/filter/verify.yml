@@ -35,6 +35,40 @@
         filter: "nephelaiio.plugins.inner_product"
         result: "{{ pairs | map(filter) | map('map', 'join') }}"
 
+    - name: Test cons with a string
+      ansible.builtin.assert:
+        that: result == expected
+        fail_msg: "{{ result | to_json }}"
+      vars:
+        expected: ["hello"]
+        result: "{{ 'hello' | nephelaiio.plugins.cons }}"
+
+    - name: Test cons with a number
+      ansible.builtin.assert:
+        that: result == expected
+        fail_msg: "{{ result | to_json }}"
+      vars:
+        expected: [42]
+        result: "{{ 42 | nephelaiio.plugins.cons }}"
+
+    - name: Test cons with a dict
+      ansible.builtin.assert:
+        that: result == expected
+        fail_msg: "{{ result | to_json }}"
+      vars:
+        value: { key: "value" }
+        expected: [{ key: "value" }]
+        result: "{{ value | nephelaiio.plugins.cons }}"
+
+    - name: Test cons with map
+      ansible.builtin.assert:
+        that: result == expected
+        fail_msg: "{{ result | to_json }}"
+      vars:
+        items: ["a", "b", "c"]
+        expected: [["a"], ["b"], ["c"]]
+        result: "{{ items | map('nephelaiio.plugins.cons') | list }}"
+
     - name: Set up combined filter input facts
       ansible.builtin.set_fact:
         _input:
@@ -75,8 +109,7 @@
         _srvoptpairs: "{{ _srvoptions | map('map', 'map', 'split', '=') }}"
         _srvdata: "{{ _srvoptpairs | map('map', 'community.general.dict') }}"
         _options: "{{ _srvdata | map('map', 'nephelaiio.plugins.to_dict', 'options') }}"
-        _sourcestrs: '{{ _input | map(attribute=''item'') | map(''nephelaiio.plugins.map_format'', ''[{ "source": "%s"}]'') }}'
-        _sources: "{{ _sourcestrs | map('ansible.builtin.from_json') }}"
+        _sources: "{{ _input | map(attribute='item') | map('nephelaiio.plugins.to_dict', 'source') | map('nephelaiio.plugins.cons') }}"
         _srcopts: "{{ _sources | zip(_options) | map('nephelaiio.plugins.inner_product') | map('map', 'combine') }}"
         _fserverstrs: "{{ _input | map(attribute='query_result') | map('map', attribute='srvname') }}"
         _fservers: "{{ _fserverstrs | map('map', 'nephelaiio.plugins.to_dict', 'foreign_server') }}"
