@@ -18,7 +18,6 @@ dev = [
 python = ".venv"
 
 [tool.pyright]
-venvPath = "."
 venv = ".venv"
 typeCheckingMode = "off"
 
