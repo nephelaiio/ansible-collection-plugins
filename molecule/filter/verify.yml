@@ -71,39 +71,119 @@
 
     - name: Set up combined filter input facts
       ansible.builtin.set_fact:
-        _input:
+        _input: "{{ _db1 + _db2 }}"
+      vars:
+        _db1:
           - item: "db1"
             query_result:
               - oid: 17367
                 srvacl: "{postgres=U/postgres,molecule=U/postgres,test=U/postgres}"
                 srvfdw: 17349
-                srvname: "remote_bladb_server"
+                srvname: "serverA"
                 srvoptions:
-                  - "host=patroni-fdw-haproxy-01"
-                  - "dbname=remote_BlaDB"
+                  - "host=hostA"
+                  - "dbname=remoteA"
                   - "fetch_size=100"
                   - "port=5433"
                   - "updatable=true"
                   - "truncatable=true"
-                  - "application_name=fdw_BlaDB"
+                  - "application_name=appA"
+                srvowner: 10
+                srvtype: null
+                srvversion: null
+              - oid: 17368
+                srvacl: "{postgres=U/postgres,molecule=U/postgres,test=U/postgres}"
+                srvfdw: 17350
+                srvname: "serverB"
+                srvoptions:
+                  - "host=hostB"
+                  - "dbname=remoteB"
+                  - "fetch_size=100"
+                  - "port=5433"
+                  - "updatable=true"
+                  - "truncatable=true"
+                  - "application_name=appB"
+                srvowner: 10
+                srvtype: null
+                srvversion: null
+        _db2:
+          - item: "db2"
+            query_result:
+              - oid: 17369
+                srvacl: "{postgres=U/postgres,molecule=U/postgres,test=U/postgres}"
+                srvfdw: 17351
+                srvname: "serverC"
+                srvoptions:
+                  - "host=hostC"
+                  - "dbname=remoteC"
+                  - "fetch_size=100"
+                  - "port=5433"
+                  - "updatable=true"
+                  - "truncatable=true"
+                  - "application_name=appC"
+                srvowner: 10
+                srvtype: null
+                srvversion: null
+              - oid: 17370
+                srvacl: "{postgres=U/postgres,molecule=U/postgres,test=U/postgres}"
+                srvfdw: 17352
+                srvname: "serverD"
+                srvoptions:
+                  - "host=hostD"
+                  - "dbname=remoteD"
+                  - "fetch_size=100"
+                  - "port=5433"
+                  - "updatable=true"
+                  - "truncatable=true"
+                  - "application_name=appD"
                 srvowner: 10
                 srvtype: null
                 srvversion: null
 
     - name: Format query data
       ansible.builtin.set_fact:
-        _fdw_data: "{{ _output | flatten | list }}"
-        _fdw_trgt:
-          - foreign_server: "remote_bladb_server"
+        _output: "{{ _data | flatten }}"
+        _control:
+          - foreign_server: "serverA"
             options:
-              application_name: "fdw_BlaDB"
-              dbname: "remote_BlaDB"
+              application_name: "appA"
+              dbname: "remoteA"
               fetch_size: "100"
-              host: "patroni-fdw-haproxy-01"
+              host: "hostA"
               port: "5433"
               truncatable: "true"
               updatable: "true"
             source: "db1"
+          - foreign_server: "serverB"
+            options:
+              application_name: "appB"
+              dbname: "remoteB"
+              fetch_size: "100"
+              host: "hostB"
+              port: "5433"
+              truncatable: "true"
+              updatable: "true"
+            source: "db1"
+          - foreign_server: "serverC"
+            options:
+              application_name: "appC"
+              dbname: "remoteC"
+              fetch_size: "100"
+              host: "hostC"
+              port: "5433"
+              truncatable: "true"
+              updatable: "true"
+            source: "db2"
+          - foreign_server: "serverD"
+            options:
+              application_name: "appD"
+              dbname: "remoteD"
+              fetch_size: "100"
+              host: "hostD"
+              port: "5433"
+              truncatable: "true"
+              updatable: "true"
+            source: "db2"
       vars:
         _srvoptions: "{{ _input | map(attribute='query_result') | map('map', attribute='srvoptions') }}"
         _srvoptpairs: "{{ _srvoptions | map('map', 'map', 'split', '=') }}"
@@ -113,8 +193,9 @@
         _srcopts: "{{ _sources | zip(_options) | map('nephelaiio.plugins.inner_product') | map('map', 'combine') }}"
         _fserverstrs: "{{ _input | map(attribute='query_result') | map('map', attribute='srvname') }}"
         _fservers: "{{ _fserverstrs | map('map', 'nephelaiio.plugins.to_dict', 'foreign_server') }}"
-        _output: "{{ _srcopts | zip(_fservers) | map('nephelaiio.plugins.inner_product') | map('map', 'combine') }}"
+        _data: "{{ _srcopts | zip(_fservers) | map('nephelaiio.plugins.pairs') | map('map', 'combine') }}"
 
     - name: Verify output format
       ansible.builtin.assert:
-        that: _fdw_trgt | symmetric_difference(_fdw_data) | length == 0
+        that: _output | symmetric_difference(_control) | length == 0
+        fail_msg: "{{ _output | symmetric_difference(_control) | length }} mismatched elements found"

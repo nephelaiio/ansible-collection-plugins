@@ -39,6 +39,7 @@ Functions:
 - search_regex(r, s): Checks if a string matches a given regex pattern.
 - set_difference(x): Return the set difference on a list-pair of lists
 - inner_product(x): Return the cartesian product of a list-pair of lists
+- pairs(x): Return an ordered list of pairs from two equal length lists
 - cons(x): Append element to empty list
 
 These functions are designed to assist in data manipulation and processing tasks, particularly useful in contexts
@@ -68,10 +69,10 @@ def is_hash(data: Any) -> bool:
     Check if a given object is isomorphic to a dictionary.
 
     Args:
-    data (Any): The object to check.
+        data (Any): The object to check.
 
     Returns:
-    bool: True if 'd' has a callable 'get' attribute, False otherwise.
+        bool: True if 'data' has a callable 'get' attribute, False otherwise.
     """
     return callable(getattr(data, "get", None))
 
@@ -82,11 +83,11 @@ def merge_dicts(x: dict[X, A], y: dict[Y, B]) -> dict[X | Y, A | B]:
     If there are overlapping keys, the values from the second dictionary will be used.
 
     Args:
-    x (dict): The first dictionary.
-    y (dict): The second dictionary.
+        x (dict): The first dictionary.
+        y (dict): The second dictionary.
 
     Returns:
-    dict: A new dictionary containing the merged key-value pairs.
+        dict: A new dictionary containing the merged key-value pairs.
     """
     z = {**x, **y}
     return z
@@ -98,11 +99,11 @@ def merge_dicts_reverse(x: dict[X, A], y: dict[Y, B]) -> dict[X | Y, A | B]:
     The values from the first dictionary will overwrite those from the second.
 
     Args:
-    x (dict): The first dictionary.
-    y (dict): The second dictionary.
+        x (dict): The first dictionary.
+        y (dict): The second dictionary.
 
     Returns:
-    dict: A new dictionary with merged key-value pairs, prioritizing 'x' over 'y'.
+        dict: A new dictionary with merged key-value pairs, prioritizing 'x' over 'y'.
     """
     return merge_dicts(y, x)
 
@@ -112,10 +113,10 @@ def filename(basename: str) -> str:
     Extracts the filename (excluding extension) from a given basename.
 
     Args:
-    basename (str): The basename, typically including the file extension.
+        basename (str): The basename, typically including the file extension.
 
     Returns:
-    str: The filename without the extension.
+        str: The filename without the extension.
     """
     return basename.split(".")[0]
 
@@ -176,10 +177,10 @@ def map_values(data: dict[X, Y]) -> list[Y]:
     Extract the values from a dictionary and return them as a list.
 
     Args:
-    data (dict): The dictionary from which to extract values.
+        data (dict): The dictionary from which to extract values.
 
     Returns:
-    list: A list containing all the values from the dictionary.
+        list: A list containing all the values from the dictionary.
     """
     return list(data.values())
 
@@ -189,10 +190,10 @@ def reverse_record(record: dict[str, str]) -> dict[str, str]:
     Reverses the IP address and hostname in a record, formatting the IP address for reverse DNS lookup.
 
     Args:
-    record (dict): A dictionary containing 'ip-address' and 'host' keys.
+        record (dict): A dictionary containing 'ip-address' and 'host' keys.
 
     Returns:
-    dict: A new dictionary with reversed 'ip-address' and 'host', and a 'type' key set to "PTR".
+        dict: A new dictionary with reversed 'ip-address' and 'host', and a 'type' key set to "PTR".
     """
 
     def reverse_address(addr):
@@ -211,11 +212,11 @@ def with_ext(basename: str, ext: str) -> str:
     Appends an extension to a given basename.
 
     Args:
-    basename (str): The initial basename.
-    ext (str): The extension to append.
+        basename (str): The initial basename.
+        ext (str): The extension to append.
 
     Returns:
-    str: The basename with the appended extension.
+        str: The basename with the appended extension.
     """
     return f"{filename(basename)}.{ext}"
 
@@ -225,11 +226,11 @@ def zone_fwd(zone: str, servers: list[str]) -> dict[str, dict[str, str | list[st
     Creates a DNS forward zone configuration.
 
     Args:
-    zone (str): The DNS zone name.
-    servers (list): A list of server addresses for forwarding.
+        zone (str): The DNS zone name.
+        servers (list): A list of server addresses for forwarding.
 
     Returns:
-    dict: A dictionary representing the forward zone configuration.
+        dict: A dictionary representing the forward zone configuration.
     """
     return {
         f'zone "{zone}" IN': {
@@ -245,10 +246,10 @@ def head(sequence_data: list[X]) -> X:
     Returns the first element of a sequence.
 
     Args:
-    sequence_data (list[X]): The sequence from which to extract the first element.
+        sequence_data (list[X]): The sequence from which to extract the first element.
 
     Returns:
-    X: The first element of the sequence.
+        X: The first element of the sequence.
     """
     return sequence_data[0]
 
@@ -258,10 +259,10 @@ def tail(sequence_data: list[X]) -> list[X]:
     Returns all but the first element of a sequence.
 
     Args:
-    sequence_data (list[X]): The sequence from which to extract elements.
+        sequence_data (list[X]): The sequence from which to extract elements.
 
     Returns:
-    list[X]: All but the first element of the sequence.
+        list[X]: All but the first element of the sequence.
     """
     return sequence_data[1::]
 
@@ -271,11 +272,11 @@ def split_with(target_string: str, delimiter: str) -> list[str]:
     Splits a string by the specified delimiter.
 
     Args:
-    target_string (str): The string to split.
-    delimiter (str): The delimiter to use for splitting.
+        target_string (str): The string to split.
+        delimiter (str): The delimiter to use for splitting.
 
     Returns:
-    list: A list of substrings.
+        list: A list of substrings.
     """
     return target_string.split(delimiter)
 
@@ -285,11 +286,11 @@ def join_with(string_list: Iterable[str], delimiter: str) -> str:
     Joins a list of strings using a specified delimiter.
 
     Args:
-    string_list (Iterable[str]): The iterable of strings to join.
-    delimiter (str): The delimiter to use for joining.
+        string_list (Iterable[str]): The iterable of strings to join.
+        delimiter (str): The delimiter to use for joining.
 
     Returns:
-    str: The joined string.
+        str: The joined string.
     """
     return delimiter.join(string_list)
 
@@ -299,11 +300,11 @@ def alias_keys(d: dict[X, Y], alias: dict[X, X] | None = None) -> dict[X, Y]:
     Creates a new dictionary with keys renamed as per the alias mapping.
 
     Args:
-    d (dict[X, Y]): The original dictionary.
-    alias (dict[X, X] | None): A mapping of old keys to new keys. If None, the dictionary is returned unchanged.
+        d (dict[X, Y]): The original dictionary.
+        alias (dict[X, X] | None): A mapping of old keys to new keys. If None, the dictionary is returned unchanged.
 
     Returns:
-    dict[X, Y]: A deep copy of the dictionary with keys renamed according to the alias mapping.
+        dict[X, Y]: A deep copy of the dictionary with keys renamed according to the alias mapping.
     """
     new_dict: dict[X, Y] = copy.deepcopy(d)
     _alias = alias or {}
@@ -317,11 +318,11 @@ def map_attributes(d: dict[X, Y], atts: list[X]) -> list[Y]:
     Extracts values from the input dictionary (d) for the keys listed in atts.
 
     Args:
-    d (dict): The dictionary from which to extract values.
-    atts (list): A list of keys for which to extract values from the dictionary.
+        d (dict): The dictionary from which to extract values.
+        atts (list): A list of keys for which to extract values from the dictionary.
 
     Returns:
-    list: A list of values corresponding to the keys in atts found in d.
+        list: A list of values corresponding to the keys in atts found in d.
     """
     new_array = []
     for k in atts:
@@ -336,11 +337,11 @@ def select_attributes(d: dict[X, Y], atts: list[X]) -> dict[X, Y]:
     where the keys are specified in atts.
 
     Args:
-    d (dict): The original dictionary to select key-value pairs from.
-    atts (list): A list of keys to include in the new dictionary.
+        d (dict): The original dictionary to select key-value pairs from.
+        atts (list): A list of keys to include in the new dictionary.
 
     Returns:
-    dict: A new dictionary containing only the selected key-value pairs.
+        dict: A new dictionary containing only the selected key-value pairs.
     """
     new_dict = {}
     for k, _ in list(d.items()):
@@ -354,11 +355,11 @@ def drop_attributes(d: dict[X, Y], x: list[X]) -> dict[X, Y]:
     Returns a new dictionary with specified keys removed from the input dictionary (d).
 
     Args:
-    d (dict): The original dictionary to remove key-value pairs from.
-    x (list): A list of keys to be removed from the dictionary.
+        d (dict): The original dictionary to remove key-value pairs from.
+        x (list): A list of keys to be removed from the dictionary.
 
     Returns:
-    dict: A new dictionary with the specified keys removed.
+        dict: A new dictionary with the specified keys removed.
     """
     new_dict = copy.deepcopy(d)
     for y in list(itertools.chain.from_iterable([x])):
@@ -429,22 +430,20 @@ def key_item(
     Extracts a value from the given item using a specified key or nested keys, and returns
     this value along with a modified copy of the original item.
 
-    Parameters:
-    - item (hash): The item from which to extract the value. It should be a
-      dictionary or a dictionary-like object.
-    - key_attr (int, float, str, bool, list, tuple): The key or nested keys used to extract
-      the value from the item. If it's a list or tuple, it is treated as nested keys.
-    - remove_key (bool, optional): If True, the key is removed from the copied item.
-      Default is True. Note: This option is not applicable for nested keys.
+    Args:
+        item (dict): The item from which to extract the value.
+        key_attr (int | float | str | bool | list | tuple): The key or nested keys used to extract
+            the value from the item. If it's a list or tuple, it is treated as nested keys.
+        remove_key (bool, optional): If True, the key is removed from the copied item.
+            Default is True. Note: This option is not applicable for nested keys.
 
     Returns:
-    - list: A list containing two elements:
-        1. The value extracted from the item using the key(s).
-        2. A deep copy of the item, potentially with the key removed.
+        list: A two-element list containing the extracted value and a deep copy of the item,
+            potentially with the key removed.
 
     Raises:
-    - ValueError: If 'remove_key' is True for nested attributes or if 'key_attr' is
-      neither a scalar nor a list/tuple.
+        ValueError: If 'remove_key' is True for nested attributes or if 'key_attr' is
+            neither a scalar nor a list/tuple.
 
     Example:
     >>> item = {'a': {'b': 2}}
@@ -453,9 +452,6 @@ def key_item(
 
     >>> key_item(item, 'a')
     [{'b': 2}, {}]
-
-    Note:
-    - The function assumes that the nested keys correctly point to a value in the item.
     """
     new_item = copy.deepcopy(item)
     if isinstance(key_attr, (list, tuple)):
@@ -736,9 +732,6 @@ def is_all_true(xs: Iterable[X]) -> bool:
 
     Returns:
         bool: True if all elements in the iterable are true, False otherwise.
-
-    Note:
-        This function uses a lambda function in conjunction with functools.reduce for evaluation.
     """
     return functools.reduce(
         lambda x, y: x and y,
@@ -798,6 +791,24 @@ def inner_product(value: Iterable[Iterable[X]]) -> list[list[X]]:
     """
     [a, b] = value
     return [list(x) for x in itertools.product(a, b)]
+
+
+def pairs(x: list[Iterable[X] | Iterable[Y]]) -> list[list[X | Y]]:
+    """
+    Return an ordered list of pairs from two equal-length iterables.
+
+    Args:
+        x (list[Iterable]): A two-element list containing the two iterables to pair up.
+
+    Returns:
+        list[list[X | Y]]: A list of two-element lists, each containing one element from each iterable.
+
+    Example:
+    .. sourcecode:: jinja
+        {{ [['a', 'b', 'c'], [1, 2, 3]] | pairs }}
+            -> [['a', 1], ['b', 2], ['c', 3]]
+    """
+    return [[a, b] for a, b in zip(*x)]
 
 
 def cons(x: X) -> list[X]:
@@ -868,6 +879,7 @@ class FilterModule:
             - search_regex: Checks if a string matches a given regex pattern.
             - set_difference: Return the set difference on a list-pair of lists
             - inner_product: Return the cartesian product of a list-pair of lists
+            - pairs(x): Return an ordered list of pairs from two equal length lists
             - cons: Lift element to list of elements
         """
 
@@ -905,4 +917,5 @@ class FilterModule:
             "set_difference": set_difference,
             "inner_product": inner_product,
             "cons": cons,
+            "pairs": pairs,
         }
