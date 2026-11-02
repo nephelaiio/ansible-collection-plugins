@@ -1,3 +1,6 @@
+import time
+from datetime import datetime, timezone
+
 import pytest
 from custom_filter import (  # noqa: E402
     alias_keys,
@@ -27,6 +30,7 @@ from custom_filter import (  # noqa: E402
     set_difference,
     sorted_get,
     to_dict,
+    to_epoch,
     to_kv,
     to_safe_yaml,
     with_ext,
@@ -514,3 +518,22 @@ def test_inner_product():
         ["b", "c"],
         ["b", "d"],
     ]
+
+
+def test_to_epoch():
+    now = datetime.now(timezone.utc)
+    today = now.date()
+    midnight = datetime(today.year, today.month, today.day, tzinfo=timezone.utc)
+    expected = int(midnight.timestamp())
+    iso_date = today.isoformat()
+
+    assert to_epoch(now) == int(now.timestamp())
+    assert abs(to_epoch(datetime.now(timezone.utc)) - int(time.time())) <= 1
+    assert to_epoch(expected) == expected
+    assert to_epoch(f"{iso_date} 00:00:00", utc=True) == expected
+    assert to_epoch(f"{iso_date}T00:00:00Z") == expected
+    assert to_epoch(today.strftime("%d/%m/%Y"), format="%d/%m/%Y", utc=True) == expected
+    assert (
+        to_epoch(today.strftime("%Y-%m-%d 00:00"), format="%Y-%m-%d %H:%M", utc=True)
+        == expected
+    )

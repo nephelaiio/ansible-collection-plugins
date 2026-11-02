@@ -41,6 +41,7 @@ Functions:
 - inner_product(x): Return the cartesian product of a list-pair of lists
 - pairs(x): Return an ordered list of pairs from two equal length lists
 - cons(x): Append element to empty list
+- to_epoch(value, format, utc): Return an epoch time
 
 These functions are designed to assist in data manipulation and processing tasks, particularly useful in contexts
 where data structures need to be dynamically created, modified, or converted between different formats.
@@ -52,10 +53,12 @@ import itertools
 import re
 from collections import defaultdict
 from collections.abc import Sequence
+from datetime import date, datetime, timezone
 from typing import Any, Iterable, TypeVar, overload
 
 import netaddr
 import yaml
+from ansible.errors import AnsibleFilterError
 from markupsafe import soft_str
 
 X = TypeVar("X")
@@ -824,6 +827,44 @@ def cons(x: X) -> list[X]:
     return [x]
 
 
+def to_epoch(value, format=None, utc=False):
+    """Convert a datetime, date, or string to an integer Unix timestamp.
+
+    value: datetime/date object, string, or number (numbers are returned as int)
+    format:   optional strptime format for strings, e.g. '%Y-%m-%d %H:%M:%S'.
+           Without it, strings are parsed as ISO 8601.
+    utc:   treat values with no timezone as UTC instead of controller local time
+    """
+    if isinstance(value, bool):
+        raise AnsibleFilterError("to_epoch: boolean is not a valid date")
+
+    if isinstance(value, (int, float)):
+        return int(value)
+
+    if isinstance(value, datetime):
+        dt = value
+    elif isinstance(value, date):
+        dt = datetime(value.year, value.month, value.day)
+    elif isinstance(value, str):
+        s = value.strip()
+        try:
+            if format:
+                dt = datetime.strptime(s, format)
+            else:
+                if s.endswith("Z"):
+                    s = s[:-1] + "+00:00"
+                dt = datetime.fromisoformat(s)
+        except ValueError as e:
+            raise AnsibleFilterError(f"to_epoch: cannot parse '{value}': {e}")
+    else:
+        raise AnsibleFilterError(f"to_epoch: unsupported type {type(value).__name__}")
+
+    if utc and dt.tzinfo is None:
+        dt = dt.replace(tzinfo=timezone.utc)
+
+    return int(dt.timestamp())
+
+
 class FilterModule:
     """
     A class encapsulating a collection of jinja2 filters.
@@ -918,4 +959,5 @@ class FilterModule:
             "inner_product": inner_product,
             "cons": cons,
             "pairs": pairs,
+            "to_epoch": to_epoch,
         }
